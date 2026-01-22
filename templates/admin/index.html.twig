@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Foot Local{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Tableau de bord Administrateur</h1>
+    <p class="lead">Gestion logistique de la ligue</p>
+
+    <section class="my-4">
+        <h2>Statistiques du jour</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Réservations aujourd'hui</h5>
+                        <p class="card-text display-4">{{ stats.reservations_aujourdhui }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Terrains disponibles</h5>
+                        <p class="card-text display-4">{{ stats.terrains_disponibles }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-warning mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Vestiaires occupés</h5>
+                        <p class="card-text display-4">{{ stats.vestiaires_occupes }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="my-4">
+        <h2>Gestion logistique</h2>
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action">
+                <strong>Gestion des terrains</strong> - Voir et gérer les terrains disponibles
+            </a>
+            <a href="#" class="list-group-item list-group-item-action">
+                <strong>Gestion des vestiaires</strong> - Planning et réservations des vestiaires
+            </a>
+            <a href="#" class="list-group-item list-group-item-action">
+                <strong>Gestion du matériel</strong> - Inventaire et prêts de matériel
+            </a>
+        </div>
+    </section>
+
+    <a href="{{ path('app_home') }}" class="btn btn-secondary mt-3">Retour à l'accueil</a>
+</div>
+{% endblock %}

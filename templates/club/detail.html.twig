@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ club.nom }} - Foot Local{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>{{ club.nom }}</h1>
+
+    <section class="my-4">
+        <h2>Informations</h2>
+        <p><strong>Ville :</strong> {{ club.ville }}</p>
+        <p><strong>Adresse :</strong> {{ club.adresse }}</p>
+        <p><strong>Téléphone :</strong> {{ club.telephone }}</p>
+    </section>
+
+    <section class="my-4">
+        <h2>Liste des joueurs</h2>
+        {% if joueurs is not empty %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Poste</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for joueur in joueurs %}
+                        <tr>
+                            <td>{{ joueur.nom }}</td>
+                            <td>{{ joueur.prenom }}</td>
+                            <td>{{ joueur.poste }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Aucun joueur enregistré pour ce club.</p>
+        {% endif %}
+    </section>
+
+    <a href="{{ path('app_clubs') }}" class="btn btn-secondary mt-3">Retour à la liste des clubs</a>
+</div>
+{% endblock %}

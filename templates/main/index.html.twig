@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - Foot Local{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Maison des Ligues - Foot Local</h1>
+    <p class="lead">Suivez les résultats de football local et gérez la logistique de la ligue</p>
+
+    <section class="my-4">
+        <h2>Derniers scores</h2>
+        {% if derniersScores is not empty %}
+            <ul class="list-group">
+                {% for match in derniersScores %}
+                    <li class="list-group-item">
+                        <strong>{{ match.domicile }}</strong> {{ match.score }} <strong>{{ match.exterieur }}</strong>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun score pour le moment.</p>
+        {% endif %}
+    </section>
+
+    <section class="my-4">
+        <h2>Actualités locales</h2>
+        {% if actus is not empty %}
+            <ul class="list-group">
+                {% for actu in actus %}
+                    <li class="list-group-item">
+                        <strong>{{ actu.titre }}</strong> — {{ actu.date }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Pas d'actualités pour le moment.</p>
+        {% endif %}
+    </section>
+
+    <div class="mt-4">
+        <a href="{{ path('app_tournois') }}" class="btn btn-primary">Voir les tournois</a>
+        <a href="{{ path('app_clubs') }}" class="btn btn-primary">Voir les clubs</a>
+        <a href="{{ path('app_contact') }}" class="btn btn-secondary">Nous contacter</a>
+    </div>
+</div>
+{% endblock %}

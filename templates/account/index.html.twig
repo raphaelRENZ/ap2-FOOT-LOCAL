@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte - Foot Local{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Mon compte</h1>
+
+    <section class="my-4">
+        <h2>Informations personnelles</h2>
+        <p><strong>Nom :</strong> {{ utilisateur.nom }}</p>
+        <p><strong>Prénom :</strong> {{ utilisateur.prenom }}</p>
+        <p><strong>Email :</strong> {{ utilisateur.email }}</p>
+        <button class="btn btn-primary">Modifier mes informations</button>
+    </section>
+
+    <section class="my-4">
+        <h2>Tableau de bord</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Mes clubs favoris</h5>
+                        <p class="card-text">Gérez vos clubs préférés et activez les notifications.</p>
+                        <a href="{{ path('app_compte_favoris') }}" class="btn btn-primary">Accéder</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <a href="{{ path('app_home') }}" class="btn btn-secondary mt-3">Retour à l'accueil</a>
+</div>
+{% endblock %}
