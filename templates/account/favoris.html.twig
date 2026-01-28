@@ -3,46 +3,48 @@
 {% block title %}Mes clubs favoris - Foot Local{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>Mes clubs favoris</h1>
+    <div class="hero-section">
+        <h1>Mes clubs favoris</h1>
+    </div>
 
     {% if clubsFavoris is not empty %}
-        <table class="table mt-4">
-            <thead>
-                <tr>
-                    <th>Club</th>
-                    <th>Notifications activées</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for club in clubsFavoris %}
+        <div class="content-card">
+            <table class="table mt-4">
+                <thead>
                     <tr>
-                        <td>
-                            <a href="{{ path('app_clubs_detail', {id: club.id}) }}">
-                                {{ club.nom }}
-                            </a>
-                        </td>
-                        <td>
-                            {% if club.notifications %}
-                                <span class="badge bg-success">Oui</span>
-                            {% else %}
-                                <span class="badge bg-secondary">Non</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {# TODO: Ajouter formulaire pour activer/désactiver notifications #}
-                            <button class="btn btn-sm btn-primary">Modifier</button>
-                            <button class="btn btn-sm btn-danger">Retirer</button>
-                        </td>
+                        <th>Club</th>
+                        <th>Notifications activées</th>
+                        <th>Actions</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for club in clubsFavoris %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('app_clubs_detail', {id: club.id}) }}">
+                                    {{ club.nom }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if club.notifications %}
+                                    <span class="badge bg-success">Oui</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Non</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {# TODO: Ajouter formulaire pour activer/désactiver notifications #}
+                                <button class="btn btn-sm btn-primary">Modifier</button>
+                                <button class="btn btn-sm btn-danger">Retirer</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
-        <p class="mt-4">Vous n'avez pas encore de clubs favoris.</p>
+        <div class="content-card">
+            <p>Vous n'avez pas encore de clubs favoris.</p>
+        </div>
     {% endif %}
-
-    <a href="{{ path('app_compte') }}" class="btn btn-secondary mt-3">Retour au compte</a>
-</div>
 {% endblock %}

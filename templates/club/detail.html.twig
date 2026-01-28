@@ -3,17 +3,18 @@
 {% block title %}{{ club.nom }} - Foot Local{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>{{ club.nom }}</h1>
+    <div class="hero-section">
+        <h1>{{ club.nom }}</h1>
+    </div>
 
-    <section class="my-4">
+    <div class="content-card">
         <h2>Informations</h2>
         <p><strong>Ville :</strong> {{ club.ville }}</p>
         <p><strong>Adresse :</strong> {{ club.adresse }}</p>
         <p><strong>Téléphone :</strong> {{ club.telephone }}</p>
-    </section>
+    </div>
 
-    <section class="my-4">
+    <div class="content-card">
         <h2>Liste des joueurs</h2>
         {% if joueurs is not empty %}
             <table class="table">
@@ -37,8 +38,5 @@
         {% else %}
             <p>Aucun joueur enregistré pour ce club.</p>
         {% endif %}
-    </section>
-
-    <a href="{{ path('app_clubs') }}" class="btn btn-secondary mt-3">Retour à la liste des clubs</a>
-</div>
+    </div>
 {% endblock %}

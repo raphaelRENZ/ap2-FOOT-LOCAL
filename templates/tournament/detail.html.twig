@@ -3,11 +3,12 @@
 {% block title %}{{ tournoi.nom }} - Foot Local{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>{{ tournoi.nom }}</h1>
-    <p><strong>Date de début :</strong> {{ tournoi.date_debut }}</p>
+    <div class="hero-section">
+        <h1>{{ tournoi.nom }}</h1>
+        <p><strong>Date de début :</strong> {{ tournoi.date_debut }}</p>
+    </div>
 
-    <section class="my-4">
+    <div class="content-card">
         <h2>Matchs à venir</h2>
         {% if matchsAVenir is not empty %}
             <ul class="list-group">
@@ -20,9 +21,9 @@
         {% else %}
             <p>Aucun match à venir pour le moment.</p>
         {% endif %}
-    </section>
+    </div>
 
-    <section class="my-4">
+    <div class="content-card">
         <h2>Anciens matchs</h2>
         {% if anciensMatchs is not empty %}
             <ul class="list-group">
@@ -35,8 +36,5 @@
         {% else %}
             <p>Aucun match passé pour le moment.</p>
         {% endif %}
-    </section>
-
-    <a href="{{ path('app_tournois') }}" class="btn btn-secondary mt-3">Retour à la liste des tournois</a>
-</div>
+    </div>
 {% endblock %}

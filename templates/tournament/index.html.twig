@@ -3,27 +3,23 @@
 {% block title %}Tournois - Foot Local{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>Liste des tournois</h1>
+    <div class="hero-section">
+        <h1>Liste des tournois</h1>
+    </div>
 
     {% if tournois is not empty %}
-        <div class="row mt-4">
+        <div class="content-grid">
             {% for tournoi in tournois %}
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ tournoi.nom }}</h5>
-                            <p class="card-text">Date de début : {{ tournoi.date_debut }}</p>
-                            <a href="{{ path('app_tournois_detail', {id: tournoi.id}) }}" class="btn btn-primary">Voir les détails</a>
-                        </div>
-                    </div>
+                <div class="content-card">
+                    <h2>{{ tournoi.nom }}</h2>
+                    <p>Date de début : {{ tournoi.date_debut }}</p>
+                    <a href="{{ path('app_tournois_detail', {id: tournoi.id}) }}" class="btn btn-primary">Voir les détails</a>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <p class="mt-4">Aucun tournoi disponible pour le moment.</p>
+        <div class="content-card">
+            <p>Aucun tournoi disponible pour le moment.</p>
+        </div>
     {% endif %}
-
-    <a href="{{ path('app_home') }}" class="btn btn-secondary mt-3">Retour à l'accueil</a>
-</div>
 {% endblock %}
