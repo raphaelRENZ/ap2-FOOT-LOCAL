@@ -5,13 +5,15 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bundle\SecurityBundle\Attribute\IsGranted;
 
+#[IsGranted('ROLE_USER')]
 final class AccountController extends AbstractController
 {
     #[Route('/compte', name: 'app_compte', methods: ['GET'])]
     public function index(): Response
     {
-        // TODO: Récupérer les informations de l'utilisateur connecté
+        // TODO: Recup ici  les info de l'utilisateur connecté
         $utilisateur = [
             'nom' => 'Dupont',
             'prenom' => 'Jean',
