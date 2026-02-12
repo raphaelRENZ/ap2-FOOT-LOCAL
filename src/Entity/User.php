@@ -3,15 +3,19 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -20,6 +24,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
     private ?string $email = null;
 
     /**
@@ -36,6 +42,58 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private bool $isVerified = false;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $lastName = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $phone = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $birthDate = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $avatar = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastLoginAt = null;
+
+    #[ORM\Column]
+    private bool $isActive = true;
+
+    /**
+     * @var Collection<int, Club>
+     */
+    #[ORM\ManyToMany(targetEntity: Club::class, inversedBy: 'fans')]
+    #[ORM\JoinTable(name: 'user_favorite_clubs')]
+    private Collection $favoriteClubs;
+
+    public function __construct()
+    {
+        $this->favoriteClubs = new ArrayCollection();
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -99,6 +157,134 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->password = $password;
 
         return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): static
+    {
+        $this->firstName = $firstName;
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): static
+    {
+        $this->lastName = $lastName;
+        return $this;
+    }
+
+    public function getFullName(): string
+    {
+        if ($this->firstName && $this->lastName) {
+            return $this->firstName . ' ' . $this->lastName;
+        }
+        return $this->email;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): static
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    public function getBirthDate(): ?\DateTimeImmutable
+    {
+        return $this->birthDate;
+    }
+
+    public function setBirthDate(?\DateTimeImmutable $birthDate): static
+    {
+        $this->birthDate = $birthDate;
+        return $this;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): static
+    {
+        $this->avatar = $avatar;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function getLastLoginAt(): ?\DateTimeImmutable
+    {
+        return $this->lastLoginAt;
+    }
+
+    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): static
+    {
+        $this->lastLoginAt = $lastLoginAt;
+        return $this;
+    }
+
+    public function updateLastLogin(): static
+    {
+        $this->lastLoginAt = new \DateTimeImmutable();
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Club>
+     */
+    public function getFavoriteClubs(): Collection
+    {
+        return $this->favoriteClubs;
+    }
+
+    public function addFavoriteClub(Club $club): static
+    {
+        if (!$this->favoriteClubs->contains($club)) {
+            $this->favoriteClubs->add($club);
+        }
+        return $this;
+    }
+
+    public function removeFavoriteClub(Club $club): static
+    {
+        $this->favoriteClubs->removeElement($club);
+        return $this;
+    }
+
+    public function hasFavoriteClub(Club $club): bool
+    {
+        return $this->favoriteClubs->contains($club);
     }
 
     /**

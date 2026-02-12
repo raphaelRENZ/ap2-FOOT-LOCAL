@@ -9,9 +9,16 @@
 
     <div class="content-card">
         <h2>Informations personnelles</h2>
-        <p><strong>Nom :</strong> {{ utilisateur.nom }}</p>
-        <p><strong>Prénom :</strong> {{ utilisateur.prenom }}</p>
+        {% if utilisateur.firstName or utilisateur.lastName %}
+            <p><strong>Nom complet :</strong> {{ utilisateur.fullName }}</p>
+        {% endif %}
         <p><strong>Email :</strong> {{ utilisateur.email }}</p>
+        {% if utilisateur.phone %}
+            <p><strong>Téléphone :</strong> {{ utilisateur.phone }}</p>
+        {% endif %}
+        {% if utilisateur.createdAt %}
+            <p><strong>Membre depuis :</strong> {{ utilisateur.createdAt|date('d/m/Y') }}</p>
+        {% endif %}
         <button class="btn btn-primary">Modifier mes informations</button>
     </div>
 
