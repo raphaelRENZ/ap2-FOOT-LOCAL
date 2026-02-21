@@ -1,0 +1,46 @@
+{# Shared form fields for Club create/edit. Variable `club` may be undefined (new) or set (edit). #}
+{% set c = club is defined ? club : null %}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+    <div style="grid-column:1/-1;">
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Nom du club *</label>
+        <input type="text" name="name" value="{{ c ? c.name : '' }}" required
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Ville</label>
+        <input type="text" name="city" value="{{ c ? c.city : '' }}"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Pays</label>
+        <input type="text" name="country" value="{{ c ? c.country : 'France' }}"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Stade</label>
+        <input type="text" name="stadium" value="{{ c ? c.stadium : '' }}"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Couleurs</label>
+        <input type="text" name="colors" value="{{ c ? c.colors : '' }}" placeholder="ex: rouge et blanc"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Année de fondation</label>
+        <input type="number" name="foundedYear" value="{{ c ? c.foundedYear : '' }}" min="1800" max="2100"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div style="grid-column:1/-1;">
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Description</label>
+        <textarea name="description" rows="4"
+                  style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;resize:vertical;">{{ c ? c.description : '' }}</textarea>
+    </div>
+</div>

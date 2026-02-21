@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des clubs - Admin{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>⚽ Gestion des clubs</h1>
+        <p><a href="{{ path('app_admin_dashboard') }}" style="color:rgba(255,255,255,.8);">← Tableau de bord</a></p>
+    </div>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div style="padding:10px 15px;margin-bottom:10px;border-radius:5px;background:{{ type == 'success' ? '#d4edda' : '#f8d7da' }};color:{{ type == 'success' ? '#155724' : '#721c24' }};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="content-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <h2>Liste des clubs ({{ clubs|length }})</h2>
+            <a href="{{ path('app_admin_clubs_new') }}" class="btn btn-primary">+ Nouveau club</a>
+        </div>
+
+        {% if clubs is empty %}
+            <p style="color:#666;">Aucun club enregistré.</p>
+        {% else %}
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f5f5f5;text-align:left;">
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Nom</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Ville</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Stade</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Couleurs</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Fondé</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for club in clubs %}
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px;font-weight:bold;">{{ club.name }}</td>
+                                <td style="padding:10px;">{{ club.city ?? '—' }}</td>
+                                <td style="padding:10px;">{{ club.stadium ?? '—' }}</td>
+                                <td style="padding:10px;">{{ club.colors ?? '—' }}</td>
+                                <td style="padding:10px;">{{ club.foundedYear ?? '—' }}</td>
+                                <td style="padding:10px;">
+                                    <a href="{{ path('app_admin_clubs_edit', {id: club.id}) }}" class="btn btn-secondary" style="font-size:.85rem;padding:4px 10px;">Modifier</a>
+                                    <form method="post" action="{{ path('app_admin_clubs_delete', {id: club.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce club ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_club_' ~ club.id) }}">
+                                        <button type="submit" style="background:#dc3545;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.85rem;">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

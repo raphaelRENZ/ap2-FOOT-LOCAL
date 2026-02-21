@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ utilisateur.email }} - Admin{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>👥 Modifier l'utilisateur</h1>
+        <p><a href="{{ path('app_admin_utilisateurs_index') }}" style="color:rgba(255,255,255,.8);">← Retour à la liste</a></p>
+    </div>
+
+    <div class="content-card" style="max-width:600px;">
+        <p style="margin-bottom:20px;color:#555;">Email : <strong>{{ utilisateur.email }}</strong></p>
+
+        <form method="post" action="{{ path('app_admin_utilisateurs_edit', {id: utilisateur.id}) }}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                <div>
+                    <label style="display:block;font-weight:600;margin-bottom:4px;">Prénom</label>
+                    <input type="text" name="firstName" value="{{ utilisateur.firstName ?? '' }}"
+                           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+                </div>
+
+                <div>
+                    <label style="display:block;font-weight:600;margin-bottom:4px;">Nom</label>
+                    <input type="text" name="lastName" value="{{ utilisateur.lastName ?? '' }}"
+                           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+                </div>
+
+                <div>
+                    <label style="display:block;font-weight:600;margin-bottom:4px;">Téléphone</label>
+                    <input type="text" name="phone" value="{{ utilisateur.phone ?? '' }}"
+                           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+                </div>
+
+                <div>
+                    <label style="display:block;font-weight:600;margin-bottom:4px;">Actif</label>
+                    <select name="isActive" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+                        <option value="1" {{ utilisateur.isActive ? 'selected' : '' }}>Oui</option>
+                        <option value="0" {{ not utilisateur.isActive ? 'selected' : '' }}>Non</option>
+                    </select>
+                </div>
+
+                <div style="grid-column:1/-1;">
+                    <label style="display:block;font-weight:600;margin-bottom:8px;">Rôles</label>
+                    <div style="display:flex;gap:20px;">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                            <input type="checkbox" name="roles[]" value="ROLE_USER"
+                                   {{ 'ROLE_USER' in utilisateur.roles ? 'checked' : '' }} checked disabled
+                                   style="width:16px;height:16px;">
+                            Utilisateur (ROLE_USER) — toujours attribué
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                            <input type="checkbox" name="roles[]" value="ROLE_ADMIN"
+                                   {{ 'ROLE_ADMIN' in utilisateur.roles ? 'checked' : '' }}
+                                   style="width:16px;height:16px;">
+                            Administrateur (ROLE_ADMIN)
+                        </label>
+                    </div>
+                    {# Always send ROLE_USER even if unchecked (it's forced) #}
+                    <input type="hidden" name="roles[]" value="ROLE_USER">
+                </div>
+
+                <div style="grid-column:1/-1;">
+                    <label style="display:block;font-weight:600;margin-bottom:4px;">Nouveau mot de passe <span style="font-weight:normal;color:#888;">(laisser vide pour ne pas changer)</span></label>
+                    <input type="password" name="newPassword" autocomplete="new-password"
+                           style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+                </div>
+            </div>
+
+            <div style="margin-top:20px;display:flex;gap:10px;">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a href="{{ path('app_admin_utilisateurs_index') }}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

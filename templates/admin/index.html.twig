@@ -5,43 +5,57 @@
 {% block body %}
     <div class="hero-section">
         <h1>Tableau de bord Administrateur</h1>
-        <p>Gestion logistique de la ligue</p>
+        <p>Gérez les clubs, tournois, matchs et utilisateurs de la ligue</p>
     </div>
 
+    {# Flash messages #}
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'error' ? 'danger' : type }}" style="padding:10px 15px;margin-bottom:10px;border-radius:5px;background:{{ type == 'success' ? '#d4edda' : '#f8d7da' }};color:{{ type == 'success' ? '#155724' : '#721c24' }};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {# Stats cards #}
     <div class="content-grid">
-        <div class="content-card" style="background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); color: white;">
-            <h2 style="color: white;">Réservations aujourd'hui</h2>
-            <p style="font-size: 2.5rem; font-weight: bold;">{{ stats.reservations_aujourdhui }}</p>
-        </div>
-        <div class="content-card" style="background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%); color: white;">
-            <h2 style="color: white;">Terrains disponibles</h2>
-            <p style="font-size: 2.5rem; font-weight: bold;">{{ stats.terrains_disponibles }}</p>
-        </div>
-        <div class="content-card" style="background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%); color: white;">
-            <h2 style="color: white;">Vestiaires occupés</h2>
-            <p style="font-size: 2.5rem; font-weight: bold;">{{ stats.vestiaires_occupes }}</p>
-        </div>
+        <a href="{{ path('app_admin_clubs_index') }}" style="text-decoration:none;">
+            <div class="content-card" style="background:linear-gradient(135deg,#1b5e20,#2e7d32);color:white;cursor:pointer;">
+                <h2 style="color:white;">⚽ Clubs</h2>
+                <p style="font-size:2.5rem;font-weight:bold;">{{ stats.clubs }}</p>
+                <small style="opacity:.8;">Gérer les clubs</small>
+            </div>
+        </a>
+        <a href="{{ path('app_admin_tournois_index') }}" style="text-decoration:none;">
+            <div class="content-card" style="background:linear-gradient(135deg,#0d47a1,#1565c0);color:white;cursor:pointer;">
+                <h2 style="color:white;">🏆 Tournois</h2>
+                <p style="font-size:2.5rem;font-weight:bold;">{{ stats.tournois }}</p>
+                <small style="opacity:.8;">Gérer les tournois</small>
+            </div>
+        </a>
+        <a href="{{ path('app_admin_matchs_index') }}" style="text-decoration:none;">
+            <div class="content-card" style="background:linear-gradient(135deg,#e65100,#f57c00);color:white;cursor:pointer;">
+                <h2 style="color:white;">📅 Matchs</h2>
+                <p style="font-size:2.5rem;font-weight:bold;">{{ stats.matchs }}</p>
+                <small style="opacity:.8;">Gérer les matchs</small>
+            </div>
+        </a>
+        <a href="{{ path('app_admin_utilisateurs_index') }}" style="text-decoration:none;">
+            <div class="content-card" style="background:linear-gradient(135deg,#4a148c,#6a1b9a);color:white;cursor:pointer;">
+                <h2 style="color:white;">👥 Utilisateurs</h2>
+                <p style="font-size:2.5rem;font-weight:bold;">{{ stats.utilisateurs }}</p>
+                <small style="opacity:.8;">Gérer les utilisateurs</small>
+            </div>
+        </a>
     </div>
 
+    {# Quick actions #}
     <div class="content-card">
-        <h2>Gestion logistique</h2>
-        <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action">
-                <strong>Gestion des terrains</strong> - Voir et gérer les terrains disponibles
-            </a>
-            <a href="#" class="list-group-item list-group-item-action">
-                <strong>Gestion des vestiaires</strong> - Planning et réservations des vestiaires
-            </a>
-            <a href="#" class="list-group-item list-group-item-action">
-                <strong>Gestion du matériel</strong> - Inventaire et prêts de matériel
-            </a>
+        <h2>Actions rapides</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+            <a href="{{ path('app_admin_clubs_new') }}" class="btn btn-primary">+ Nouveau club</a>
+            <a href="{{ path('app_admin_tournois_new') }}" class="btn btn-primary">+ Nouveau tournoi</a>
+            <a href="{{ path('app_admin_matchs_new') }}" class="btn btn-primary">+ Nouveau match</a>
         </div>
     </div>
-{% endblock %}
-            </a>
-        </div>
-    </section>
-
-    <a href="{{ path('app_home') }}" class="btn btn-secondary mt-3">Retour à l'accueil</a>
-</div>
 {% endblock %}
