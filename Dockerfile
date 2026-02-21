@@ -20,4 +20,4 @@ RUN curl -sS https://get.symfony.com/cli/installer | bash && \
 WORKDIR /var/www/html
 
 # Permissions
-RUN chown -R www-data:www-data /var/www/html
+RUN mkdir -p var/cache var/log && chmod -R 777 var/

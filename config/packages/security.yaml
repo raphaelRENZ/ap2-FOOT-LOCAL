@@ -29,7 +29,7 @@ security:
                 remember_me: true
             logout:
                 path: app_logout
-                target: app_main
+                target: app_home
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 2592000 # 30 days

@@ -31,6 +31,7 @@ services:
       - database
     ports:
       - "8000:8000"
+    command: sh -c "chmod -R 777 var/ && php bin/console cache:clear --no-warmup && symfony server:start --no-tls --port=8000 --allow-http --listen-ip=0.0.0.0"
 
 volumes:
 ###> doctrine/doctrine-bundle ###
