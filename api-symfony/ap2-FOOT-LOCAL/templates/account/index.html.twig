@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte - Foot Local{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>Mon compte</h1>
+    </div>
+
+    <div class="content-card">
+        <h2>Informations personnelles</h2>
+        {% if utilisateur.firstName or utilisateur.lastName %}
+            <p><strong>Nom complet :</strong> {{ utilisateur.fullName }}</p>
+        {% endif %}
+        <p><strong>Email :</strong> {{ utilisateur.email }}</p>
+        {% if utilisateur.phone %}
+            <p><strong>Téléphone :</strong> {{ utilisateur.phone }}</p>
+        {% endif %}
+        {% if utilisateur.createdAt %}
+            <p><strong>Membre depuis :</strong> {{ utilisateur.createdAt|date('d/m/Y') }}</p>
+        {% endif %}
+        <button class="btn btn-primary">Modifier mes informations</button>
+    </div>
+
+    <div class="content-grid">
+        <div class="content-card">
+            <h2>Mes clubs favoris</h2>
+            <p>Gérez vos clubs préférés et activez les notifications.</p>
+            <a href="{{ path('app_compte_favoris') }}" class="btn btn-primary">Accéder</a>
+        </div>
+    </div>
+{% endblock %}

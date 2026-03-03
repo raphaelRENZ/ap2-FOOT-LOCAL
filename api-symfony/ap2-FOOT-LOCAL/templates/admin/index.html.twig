@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Foot Local{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>Tableau de bord Administrateur</h1>
+        <p>Gestion logistique de la ligue</p>
+    </div>
+
+    <div class="content-grid">
+        <div class="content-card" style="background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); color: white;">
+            <h2 style="color: white;">Réservations aujourd'hui</h2>
+            <p style="font-size: 2.5rem; font-weight: bold;">{{ stats.reservations_aujourdhui }}</p>
+        </div>
+        <div class="content-card" style="background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%); color: white;">
+            <h2 style="color: white;">Terrains disponibles</h2>
+            <p style="font-size: 2.5rem; font-weight: bold;">{{ stats.terrains_disponibles }}</p>
+        </div>
+        <div class="content-card" style="background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%); color: white;">
+            <h2 style="color: white;">Vestiaires occupés</h2>
+            <p style="font-size: 2.5rem; font-weight: bold;">{{ stats.vestiaires_occupes }}</p>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h2>Gestion logistique</h2>
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action">
+                <strong>Gestion des terrains</strong> - Voir et gérer les terrains disponibles
+            </a>
+            <a href="#" class="list-group-item list-group-item-action">
+                <strong>Gestion des vestiaires</strong> - Planning et réservations des vestiaires
+            </a>
+            <a href="#" class="list-group-item list-group-item-action">
+                <strong>Gestion du matériel</strong> - Inventaire et prêts de matériel
+            </a>
+        </div>
+    </div>
+{% endblock %}
+            </a>
+        </div>
+    </section>
+
+    <a href="{{ path('app_home') }}" class="btn btn-secondary mt-3">Retour à l'accueil</a>
+</div>
+{% endblock %}
