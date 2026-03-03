@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des utilisateurs - Admin{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>👥 Gestion des utilisateurs</h1>
+        <p><a href="{{ path('app_admin_dashboard') }}" style="color:rgba(255,255,255,.8);">← Tableau de bord</a></p>
+    </div>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div style="padding:10px 15px;margin-bottom:10px;border-radius:5px;background:{{ type == 'success' ? '#d4edda' : '#f8d7da' }};color:{{ type == 'success' ? '#155724' : '#721c24' }};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="content-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <h2>Liste des utilisateurs ({{ utilisateurs|length }})</h2>
+        </div>
+
+        {% if utilisateurs is empty %}
+            <p style="color:#666;">Aucun utilisateur enregistré.</p>
+        {% else %}
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f5f5f5;text-align:left;">
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Nom</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Email</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Rôles</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Actif</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Vérifié</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in utilisateurs %}
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px;font-weight:bold;">
+                                    {{ user.firstName ?? '' }} {{ user.lastName ?? '' }}
+                                    {% if user == app.user %}
+                                        <span style="font-size:.75rem;background:#6c757d;color:white;padding:1px 6px;border-radius:10px;margin-left:4px;">vous</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding:10px;">{{ user.email }}</td>
+                                <td style="padding:10px;">
+                                    {% for role in user.roles %}
+                                        <span style="background:{{ role == 'ROLE_ADMIN' ? '#dc3545' : '#17a2b8' }};color:white;padding:1px 7px;border-radius:10px;font-size:.8rem;margin-right:2px;">
+                                            {{ role == 'ROLE_ADMIN' ? 'Admin' : 'User' }}
+                                        </span>
+                                    {% endfor %}
+                                </td>
+                                <td style="padding:10px;">
+                                    <span style="color:{{ user.isActive ? '#28a745' : '#dc3545' }};">{{ user.isActive ? '✓' : '✗' }}</span>
+                                </td>
+                                <td style="padding:10px;">
+                                    <span style="color:{{ user.isVerified ? '#28a745' : '#dc3545' }};">{{ user.isVerified ? '✓' : '✗' }}</span>
+                                </td>
+                                <td style="padding:10px;">
+                                    <a href="{{ path('app_admin_utilisateurs_edit', {id: user.id}) }}" class="btn btn-secondary" style="font-size:.85rem;padding:4px 10px;">Modifier</a>
+                                    {% if user != app.user %}
+                                        <form method="post" action="{{ path('app_admin_utilisateurs_delete', {id: user.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cet utilisateur ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                                            <button type="submit" style="background:#dc3545;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.85rem;">Supprimer</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

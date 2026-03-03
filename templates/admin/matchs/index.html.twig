@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des matchs - Admin{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>📅 Gestion des matchs</h1>
+        <p><a href="{{ path('app_admin_dashboard') }}" style="color:rgba(255,255,255,.8);">← Tableau de bord</a></p>
+    </div>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div style="padding:10px 15px;margin-bottom:10px;border-radius:5px;background:{{ type == 'success' ? '#d4edda' : '#f8d7da' }};color:{{ type == 'success' ? '#155724' : '#721c24' }};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="content-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <h2>Liste des matchs ({{ matchs|length }})</h2>
+            <a href="{{ path('app_admin_matchs_new') }}" class="btn btn-primary">+ Nouveau match</a>
+        </div>
+
+        {% if matchs is empty %}
+            <p style="color:#666;">Aucun match enregistré.</p>
+        {% else %}
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f5f5f5;text-align:left;">
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Date</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Domicile</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Score</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Extérieur</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Lieu</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Tournoi</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Statut</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match in matchs %}
+                            {% set statusLabels = {scheduled: 'Planifié', live: 'En direct', finished: 'Terminé', postponed: 'Reporté', cancelled: 'Annulé'} %}
+                            {% set statusColors = {scheduled: '#17a2b8', live: '#dc3545', finished: '#6c757d', postponed: '#fd7e14', cancelled: '#6c757d'} %}
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px;">{{ match.matchDate ? match.matchDate|date('d/m/Y H:i') : '—' }}</td>
+                                <td style="padding:10px;font-weight:bold;">{{ match.homeTeam.name }}</td>
+                                <td style="padding:10px;text-align:center;font-weight:bold;font-size:1.1rem;">
+                                    {% if match.homeScore is not null and match.awayScore is not null %}
+                                        {{ match.homeScore }} - {{ match.awayScore }}
+                                    {% else %}
+                                        vs
+                                    {% endif %}
+                                </td>
+                                <td style="padding:10px;font-weight:bold;">{{ match.awayTeam.name }}</td>
+                                <td style="padding:10px;">{{ match.venue ?? '—' }}</td>
+                                <td style="padding:10px;">{{ match.tournament ? match.tournament.name : '—' }}</td>
+                                <td style="padding:10px;">
+                                    <span style="background:{{ statusColors[match.status] ?? '#aaa' }};color:white;padding:2px 8px;border-radius:12px;font-size:.82rem;">
+                                        {{ statusLabels[match.status] ?? match.status }}
+                                    </span>
+                                </td>
+                                <td style="padding:10px;">
+                                    <a href="{{ path('app_admin_matchs_edit', {id: match.id}) }}" class="btn btn-secondary" style="font-size:.85rem;padding:4px 10px;">Modifier</a>
+                                    <form method="post" action="{{ path('app_admin_matchs_delete', {id: match.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce match ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_match_' ~ match.id) }}">
+                                        <button type="submit" style="background:#dc3545;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.85rem;">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

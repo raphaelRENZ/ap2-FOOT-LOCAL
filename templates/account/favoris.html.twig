@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes clubs favoris - Foot Local{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>Mes clubs favoris</h1>
+    </div>
+
+    {% if clubsFavoris is not empty %}
+        <div class="content-card">
+            <table class="table mt-4">
+                <thead>
+                    <tr>
+                        <th>Club</th>
+                        <th>Notifications activées</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for club in clubsFavoris %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('app_clubs_detail', {id: club.id}) }}">
+                                    {{ club.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {# Les notifications ne sont pas implémentées pour le moment #}
+                                <span class="badge bg-secondary">Non configuré</span>
+                            </td>
+                            <td>
+                                {# TODO: Ajouter formulaire pour activer/désactiver notifications #}
+                                <button class="btn btn-sm btn-danger">Retirer</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="content-card">
+            <p>Vous n'avez pas encore de clubs favoris.</p>
+        </div>
+    {% endif %}
+{% endblock %}

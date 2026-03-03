@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau match - Admin{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>📅 Nouveau match</h1>
+        <p><a href="{{ path('app_admin_matchs_index') }}" style="color:rgba(255,255,255,.8);">← Retour à la liste</a></p>
+    </div>
+
+    <div class="content-card" style="max-width:700px;">
+        <form method="post" action="{{ path('app_admin_matchs_new') }}">
+            {% include 'admin/matchs/_form.html.twig' with {clubs: clubs, tournois: tournois} %}
+            <div style="margin-top:20px;display:flex;gap:10px;">
+                <button type="submit" class="btn btn-primary">Créer le match</button>
+                <a href="{{ path('app_admin_matchs_index') }}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

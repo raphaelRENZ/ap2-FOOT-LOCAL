@@ -1,0 +1,77 @@
+{# Shared form fields for FootballMatch. Variables `clubs`, `tournois` required. `match` optional (edit mode). #}
+{% set m = match is defined ? match : null %}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Équipe domicile *</label>
+        <select name="homeTeam" required style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            <option value="">-- Choisir --</option>
+            {% for club in clubs %}
+                <option value="{{ club.id }}" {{ m and m.homeTeam and m.homeTeam.id == club.id ? 'selected' : '' }}>
+                    {{ club.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Équipe extérieure *</label>
+        <select name="awayTeam" required style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            <option value="">-- Choisir --</option>
+            {% for club in clubs %}
+                <option value="{{ club.id }}" {{ m and m.awayTeam and m.awayTeam.id == club.id ? 'selected' : '' }}>
+                    {{ club.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Score domicile</label>
+        <input type="number" name="homeScore" value="{{ m and m.homeScore is not null ? m.homeScore : '' }}" min="0"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Score extérieur</label>
+        <input type="number" name="awayScore" value="{{ m and m.awayScore is not null ? m.awayScore : '' }}" min="0"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Date et heure *</label>
+        <input type="datetime-local" name="matchDate"
+               value="{{ m and m.matchDate ? m.matchDate|date('Y-m-d\\TH:i') : '' }}" required
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Lieu / Stade</label>
+        <input type="text" name="venue" value="{{ m ? m.venue : '' }}"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Statut</label>
+        <select name="status" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            {% set currentStatus = m ? m.status : 'scheduled' %}
+            <option value="scheduled"  {{ currentStatus == 'scheduled'  ? 'selected' : '' }}>Planifié</option>
+            <option value="live"       {{ currentStatus == 'live'       ? 'selected' : '' }}>En direct</option>
+            <option value="finished"   {{ currentStatus == 'finished'   ? 'selected' : '' }}>Terminé</option>
+            <option value="postponed"  {{ currentStatus == 'postponed'  ? 'selected' : '' }}>Reporté</option>
+            <option value="cancelled"  {{ currentStatus == 'cancelled'  ? 'selected' : '' }}>Annulé</option>
+        </select>
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Tournoi</label>
+        <select name="tournament" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            <option value="">-- Aucun --</option>
+            {% for tournoi in tournois %}
+                <option value="{{ tournoi.id }}" {{ m and m.tournament and m.tournament.id == tournoi.id ? 'selected' : '' }}>
+                    {{ tournoi.name }} ({{ tournoi.season ?? tournoi.status }})
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

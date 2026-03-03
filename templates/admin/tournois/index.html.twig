@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des tournois - Admin{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>🏆 Gestion des tournois</h1>
+        <p><a href="{{ path('app_admin_dashboard') }}" style="color:rgba(255,255,255,.8);">← Tableau de bord</a></p>
+    </div>
+
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div style="padding:10px 15px;margin-bottom:10px;border-radius:5px;background:{{ type == 'success' ? '#d4edda' : '#f8d7da' }};color:{{ type == 'success' ? '#155724' : '#721c24' }};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="content-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <h2>Liste des tournois ({{ tournois|length }})</h2>
+            <a href="{{ path('app_admin_tournois_new') }}" class="btn btn-primary">+ Nouveau tournoi</a>
+        </div>
+
+        {% if tournois is empty %}
+            <p style="color:#666;">Aucun tournoi enregistré.</p>
+        {% else %}
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f5f5f5;text-align:left;">
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Nom</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Saison</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Lieu</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Début</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Fin</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Statut</th>
+                            <th style="padding:10px;border-bottom:2px solid #ddd;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tournoi in tournois %}
+                            {% set statusLabels = {upcoming: 'À venir', ongoing: 'En cours', completed: 'Terminé', cancelled: 'Annulé'} %}
+                            {% set statusColors = {upcoming: '#17a2b8', ongoing: '#28a745', completed: '#6c757d', cancelled: '#dc3545'} %}
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px;font-weight:bold;">{{ tournoi.name }}</td>
+                                <td style="padding:10px;">{{ tournoi.season ?? '—' }}</td>
+                                <td style="padding:10px;">{{ tournoi.location ?? '—' }}</td>
+                                <td style="padding:10px;">{{ tournoi.startDate ? tournoi.startDate|date('d/m/Y') : '—' }}</td>
+                                <td style="padding:10px;">{{ tournoi.endDate ? tournoi.endDate|date('d/m/Y') : '—' }}</td>
+                                <td style="padding:10px;">
+                                    <span style="background:{{ statusColors[tournoi.status] ?? '#aaa' }};color:white;padding:2px 8px;border-radius:12px;font-size:.82rem;">
+                                        {{ statusLabels[tournoi.status] ?? tournoi.status }}
+                                    </span>
+                                </td>
+                                <td style="padding:10px;">
+                                    <a href="{{ path('app_admin_tournois_edit', {id: tournoi.id}) }}" class="btn btn-secondary" style="font-size:.85rem;padding:4px 10px;">Modifier</a>
+                                    <form method="post" action="{{ path('app_admin_tournois_delete', {id: tournoi.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce tournoi ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_tournoi_' ~ tournoi.id) }}">
+                                        <button type="submit" style="background:#dc3545;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.85rem;">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
