@@ -15,6 +15,10 @@ final class AccountController extends AbstractController
     {
         $utilisateur = $this->getUser();
 
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('app_admin_dashboard');
+        }
+
         return $this->render('account/index.html.twig', [
             'utilisateur' => $utilisateur,
         ]);
