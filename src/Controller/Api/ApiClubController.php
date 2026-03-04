@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Controller\Api;
+
+use App\Repository\ClubRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Attribute\Route;
+
+#[Route('/api/clubs', name: 'api_clubs')]
+final class ApiClubController extends AbstractController
+{
+    #[Route('', name: 'list', methods: ['GET'])]
+    public function list(ClubRepository $clubRepository): JsonResponse
+    {
+        $clubs = $clubRepository->findAll();
+        
+        $data = array_map(fn($club) => [
+            'id' => $club->getId(),
+            'name' => $club->getName(),
+            'city' => $club->getCity(),
+            'country' => $club->getCountry(),
+            'stadium' => $club->getStadium(),
+            'logo' => $club->getLogo(),
+            'description' => $club->getDescription(),
+            'founded_year' => $club->getFoundedYear(),
+            'colors' => $club->getColors(),
+        ], $clubs);
+
+        return $this->json([
+            'status' => 'success',
+            'data' => $data,
+            'total' => count($data),
+        ]);
+    }
+
+    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    public function show(int $id, ClubRepository $clubRepository): JsonResponse
+    {
+        $club = $clubRepository->find($id);
+
+        if (!$club) {
+            return $this->json(['status' => 'error', 'message' => 'Club not found'], 404);
+        }
+
+        return $this->json([
+            'status' => 'success',
+            'data' => [
+                'id' => $club->getId(),
+                'name' => $club->getName(),
+                'city' => $club->getCity(),
+                'country' => $club->getCountry(),
+                'stadium' => $club->getStadium(),
+                'logo' => $club->getLogo(),
+                'description' => $club->getDescription(),
+                'founded_year' => $club->getFoundedYear(),
+                'colors' => $club->getColors(),
+                'players' => $club->getPlayers()->map(fn($p) => [
+                    'id' => $p->getId(),
+                    'firstName' => $p->getFirstName(),
+                    'lastName' => $p->getLastName(),
+                    'position' => $p->getPosition(),
+                    'jerseyNumber' => $p->getJerseyNumber(),
+                ])->toArray(),
+            ],
+        ]);
+    }
+}
