@@ -5,6 +5,7 @@
 {% block body %}
     <div class="hero-section">
         <h1>Liste des clubs</h1>
+        <p>Découvrez tous les clubs de football répertoriés sur Foot Local. Cliquez sur un club pour voir plus de détails, suivre ses actualités et découvrir ses joueurs.</p>
     </div>
 
     {% if clubs is not empty %}
@@ -20,8 +21,8 @@
                 <tbody>
                     {% for club in clubs %}
                         <tr>
-                            <td>{{ club.nom }}</td>
-                            <td>{{ club.ville }}</td>
+                            <td>{{ club.name }}</td>
+                            <td>{{ club.city }}</td>
                             <td>
                                 <a href="{{ path('app_clubs_detail', {id: club.id}) }}" class="btn btn-sm btn-primary">Voir détails</a>
                             </td>
