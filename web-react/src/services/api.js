@@ -35,7 +35,7 @@ async function parseJson(response) {
 }
 
 export async function login(email, password) {
-  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+  const response = await fetch(`${API_BASE_URL}/api/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -126,7 +126,7 @@ export async function getTournamentDetail(id) {
 }
 
 export async function getMe(token) {
-  const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+  const response = await fetch(`${API_BASE_URL}/api/me`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
