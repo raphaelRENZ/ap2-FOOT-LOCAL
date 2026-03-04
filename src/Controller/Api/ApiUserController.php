@@ -2,7 +2,6 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Club;
 use App\Repository\ClubRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +15,7 @@ final class ApiUserController extends AbstractController
     #[Route('/me', name: 'me', methods: ['GET'])]
     public function me(): JsonResponse
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
         if (!$user) {
@@ -44,6 +44,7 @@ final class ApiUserController extends AbstractController
     #[Route('/me/favorites', name: 'me_favorites', methods: ['GET'])]
     public function meFavorites(): JsonResponse
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
         if (!$user) {
@@ -68,6 +69,7 @@ final class ApiUserController extends AbstractController
     #[Route('/me/favorites/{clubId}', name: 'me_favorite_add', methods: ['POST'])]
     public function addFavorite(int $clubId, ClubRepository $clubRepository, EntityManagerInterface $em): JsonResponse
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
         if (!$user) {
@@ -97,6 +99,7 @@ final class ApiUserController extends AbstractController
     #[Route('/me/favorites/{clubId}', name: 'me_favorite_remove', methods: ['DELETE'])]
     public function removeFavorite(int $clubId, ClubRepository $clubRepository, EntityManagerInterface $em): JsonResponse
     {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
         if (!$user) {

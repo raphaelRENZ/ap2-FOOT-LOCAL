@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\Club;
 use App\Entity\FootballMatch;
 use App\Entity\Tournament;
-use App\Entity\User;
 use App\Repository\ClubRepository;
 use App\Repository\MatchRepository;
 use App\Repository\TournamentRepository;

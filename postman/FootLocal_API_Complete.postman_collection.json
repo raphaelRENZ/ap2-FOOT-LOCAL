@@ -1,0 +1,523 @@
+{
+  "info": {
+    "name": "Foot Local – API Complète",
+    "_postman_id": "foot-local-api-complete",
+    "description": "Tests complets de toutes les routes API : Auth, Clubs, Joueurs, Matchs, Tournois, Utilisateurs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",   "value": "http://localhost:8000" },
+    { "key": "jwt_token",  "value": "" },
+    { "key": "club_id",    "value": "1" },
+    { "key": "player_id",  "value": "1" },
+    { "key": "match_id",   "value": "1" },
+    { "key": "tournament_id", "value": "1" },
+    { "key": "user_id",    "value": "1" }
+  ],
+  "item": [
+
+    {
+      "name": "🔐 AUTH",
+      "item": [
+        {
+          "name": "POST /api/login – Connexion admin",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Connexion réussie', () => pm.response.to.have.status(200));",
+              "pm.test('Token JWT présent', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('token');",
+              "    pm.collectionVariables.set('jwt_token', json.token);",
+              "    console.log('✅ Token JWT sauvegardé');",
+              "});",
+              "pm.test('Payload contient ROLE_ADMIN', () => {",
+              "    const payload = JSON.parse(atob(pm.response.json().token.split('.')[1]));",
+              "    pm.expect(payload.roles).to.include('ROLE_ADMIN');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@footlocal.com\",\n  \"password\": \"admin1234\"\n}" }
+          }
+        },
+        {
+          "name": "POST /api/login – Mauvais mot de passe → 401",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('401 – Mauvaises credentials', () => pm.response.to.have.status(401));",
+              "pm.test('Message d\\'erreur présent', () => pm.expect(pm.response.json()).to.have.property('message'));"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@footlocal.com\",\n  \"password\": \"mauvais_mdp\"\n}" }
+          }
+        },
+        {
+          "name": "POST /api/login – Email inexistant → 401",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('401 – Utilisateur inexistant', () => pm.response.to.have.status(401));"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"inconnu@test.fr\",\n  \"password\": \"test\"\n}" }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🏟️ CLUBS",
+      "item": [
+        {
+          "name": "GET /api/clubs – Liste tous les clubs",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Liste des clubs OK', () => pm.response.to.have.status(200));",
+              "pm.test('status = success', () => pm.expect(pm.response.json().status).to.eql('success'));",
+              "pm.test('data est un tableau non vide', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data).to.be.an('array').and.not.empty;",
+              "    pm.expect(json).to.have.property('total');",
+              "    pm.collectionVariables.set('club_id', json.data[0].id);",
+              "    console.log('Nombre de clubs :', json.total, '| Premier ID sauvegardé :', json.data[0].id);",
+              "});",
+              "pm.test('Champs attendus présents', () => {",
+              "    const club = pm.response.json().data[0];",
+              "    pm.expect(club).to.have.all.keys('id','name','city','country','stadium','logo','description','founded_year','colors');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/clubs"
+          }
+        },
+        {
+          "name": "GET /api/clubs/:id – Détail d'un club",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Club trouvé', () => pm.response.to.have.status(200));",
+              "pm.test('Champs détaillés présents', () => {",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data).to.have.property('players');",
+              "    pm.expect(data.players).to.be.an('array');",
+              "    console.log('Club :', data.name, '| Joueurs :', data.players.length);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/clubs/{{club_id}}"
+          }
+        },
+        {
+          "name": "GET /api/clubs/999 – Club inexistant → 404",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 – Club not found', () => pm.response.to.have.status(404));",
+              "pm.test('Message d\\'erreur correct', () => pm.expect(pm.response.json().message).to.include('not found'));"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/clubs/999"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "⚽ JOUEURS",
+      "item": [
+        {
+          "name": "GET /api/players – Liste tous les joueurs",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Liste des joueurs OK', () => pm.response.to.have.status(200));",
+              "pm.test('data est un tableau non vide', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data).to.be.an('array').and.not.empty;",
+              "    pm.collectionVariables.set('player_id', json.data[0].id);",
+              "    console.log('Nombre de joueurs :', json.total);",
+              "});",
+              "pm.test('Champs attendus présents', () => {",
+              "    const p = pm.response.json().data[0];",
+              "    pm.expect(p).to.have.all.keys('id','firstName','lastName','position','jerseyNumber','nationality','club');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/players"
+          }
+        },
+        {
+          "name": "GET /api/players/:id – Détail d'un joueur",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Joueur trouvé', () => pm.response.to.have.status(200));",
+              "pm.test('Champs détaillés présents', () => {",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data).to.have.property('birthDate');",
+              "    pm.expect(data).to.have.property('height');",
+              "    pm.expect(data).to.have.property('preferredFoot');",
+              "    console.log('Joueur :', data.firstName, data.lastName, '| Position :', data.position);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/players/{{player_id}}"
+          }
+        },
+        {
+          "name": "GET /api/players/club/:id – Joueurs par club",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Joueurs du club OK', () => pm.response.to.have.status(200));",
+              "pm.test('Tableau de joueurs retourné', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data).to.be.an('array');",
+              "    console.log('Joueurs pour club {{club_id}} :', json.data.length);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/players/club/{{club_id}}"
+          }
+        },
+        {
+          "name": "GET /api/players/999 – Joueur inexistant → 404",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 – Player not found', () => pm.response.to.have.status(404));",
+              "pm.test('Message d\\'erreur correct', () => pm.expect(pm.response.json().message).to.include('not found'));"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/players/999"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🆚 MATCHS",
+      "item": [
+        {
+          "name": "GET /api/matches – Liste tous les matchs",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Liste des matchs OK', () => pm.response.to.have.status(200));",
+              "pm.test('data est un tableau non vide', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data).to.be.an('array').and.not.empty;",
+              "    pm.collectionVariables.set('match_id', json.data[0].id);",
+              "    console.log('Nombre de matchs :', json.total);",
+              "});",
+              "pm.test('Structure homeTeam/awayTeam correcte', () => {",
+              "    const m = pm.response.json().data[0];",
+              "    pm.expect(m.homeTeam).to.have.property('id');",
+              "    pm.expect(m.awayTeam).to.have.property('name');",
+              "    pm.expect(m).to.have.property('status');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/matches"
+          }
+        },
+        {
+          "name": "GET /api/matches/:id – Détail d'un match",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Match trouvé', () => pm.response.to.have.status(200));",
+              "pm.test('Champs détaillés présents', () => {",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data).to.have.property('venue');",
+              "    pm.expect(data).to.have.property('matchDate');",
+              "    console.log('Match :', data.homeTeam.name, 'vs', data.awayTeam.name, '|', data.status);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/matches/{{match_id}}"
+          }
+        },
+        {
+          "name": "GET /api/matches/status/finished – Matchs terminés",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Matchs filtrés par statut OK', () => pm.response.to.have.status(200));",
+              "pm.test('Tous les matchs ont le statut finished', () => {",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data).to.be.an('array');",
+              "    data.forEach(m => pm.expect(m.status).to.eql('finished'));",
+              "    console.log('Matchs terminés :', data.length);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/matches/status/finished"
+          }
+        },
+        {
+          "name": "GET /api/matches/status/scheduled – Matchs à venir",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Matchs programmés OK', () => pm.response.to.have.status(200));",
+              "pm.test('Tous les matchs ont le statut scheduled', () => {",
+              "    const data = pm.response.json().data;",
+              "    data.forEach(m => pm.expect(m.status).to.eql('scheduled'));",
+              "    console.log('Matchs à venir :', data.length);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/matches/status/scheduled"
+          }
+        },
+        {
+          "name": "GET /api/matches/999 – Match inexistant → 404",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 – Match not found', () => pm.response.to.have.status(404));",
+              "pm.test('Message d\\'erreur correct', () => pm.expect(pm.response.json().message).to.include('not found'));"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/matches/999"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🏆 TOURNOIS",
+      "item": [
+        {
+          "name": "GET /api/tournaments – Liste tous les tournois",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Liste des tournois OK', () => pm.response.to.have.status(200));",
+              "pm.test('data est un tableau non vide', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data).to.be.an('array').and.not.empty;",
+              "    pm.collectionVariables.set('tournament_id', json.data[0].id);",
+              "    console.log('Nombre de tournois :', json.total);",
+              "});",
+              "pm.test('Champs attendus présents', () => {",
+              "    const t = pm.response.json().data[0];",
+              "    pm.expect(t).to.have.all.keys('id','name','season','status','startDate','endDate','location','logo');",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/tournaments"
+          }
+        },
+        {
+          "name": "GET /api/tournaments/:id – Détail d'un tournoi",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Tournoi trouvé', () => pm.response.to.have.status(200));",
+              "pm.test('Champs détaillés présents avec matchs', () => {",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data).to.have.property('description');",
+              "    pm.expect(data).to.have.property('matches');",
+              "    pm.expect(data.matches).to.be.an('array');",
+              "    console.log('Tournoi :', data.name, '| Matchs :', data.matches.length);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/tournaments/{{tournament_id}}"
+          }
+        },
+        {
+          "name": "GET /api/tournaments/999 – Tournoi inexistant → 404",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 – Tournament not found', () => pm.response.to.have.status(404));",
+              "pm.test('Message d\\'erreur correct', () => pm.expect(pm.response.json().message).to.include('not found'));"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/tournaments/999"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "👤 UTILISATEURS",
+      "item": [
+        {
+          "name": "GET /api/users/me – Profil connecté",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Profil récupéré', () => pm.response.to.have.status(200));",
+              "pm.test('Données complètes du profil', () => {",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data).to.have.all.keys('id','email','firstName','lastName','roles','phone','avatar','isVerified','favoriteClubs');",
+              "    pm.collectionVariables.set('user_id', data.id);",
+              "    console.log('Profil :', data.email, '| Rôles :', data.roles);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }]
+          }
+        },
+        {
+          "name": "GET /api/users/me – Sans token → 401",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('401 – Non autorisé', () => pm.response.to.have.status(401));"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users/me"
+          }
+        },
+        {
+          "name": "GET /api/users/me/favorites – Clubs favoris",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Favoris récupérés', () => pm.response.to.have.status(200));",
+              "pm.test('Structure de réponse correcte', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('success');",
+              "    pm.expect(json).to.have.property('count');",
+              "    pm.expect(json.data).to.be.an('array');",
+              "    console.log('Clubs favoris :', json.count);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users/me/favorites",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }]
+          }
+        },
+        {
+          "name": "POST /api/users/me/favorites/1 – Ajouter favori",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 ou 409 (déjà en favori)', () => pm.expect(pm.response.code).to.be.oneOf([200, 409]));",
+              "pm.test('Message présent', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('message');",
+              "    console.log('Réponse :', pm.response.code, json.message);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/users/me/favorites/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }]
+          }
+        },
+        {
+          "name": "DELETE /api/users/me/favorites/1 – Retirer favori",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Favori retiré', () => pm.response.to.have.status(200));",
+              "pm.test('Message de succès', () => {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('success');",
+              "    console.log('Réponse :', json.message);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/users/me/favorites/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }]
+          }
+        },
+        {
+          "name": "GET /api/users/:id – Profil public",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 – Utilisateur trouvé', () => pm.response.to.have.status(200));",
+              "pm.test('Champs publics présents', () => {",
+              "    const data = pm.response.json().data;",
+              "    pm.expect(data).to.have.all.keys('id','email','firstName','lastName','isVerified');",
+              "    console.log('User :', data.firstName, data.lastName);",
+              "});"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users/{{user_id}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }]
+          }
+        },
+        {
+          "name": "GET /api/users/999 – Utilisateur inexistant → 404",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 – User not found', () => pm.response.to.have.status(404));",
+              "pm.test('Message d\\'erreur correct', () => pm.expect(pm.response.json().message).to.include('not found'));"
+            ]}
+          }],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users/999",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }]
+          }
+        }
+      ]
+    }
+
+  ]
+}

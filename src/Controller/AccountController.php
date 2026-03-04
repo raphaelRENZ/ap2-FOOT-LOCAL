@@ -5,7 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bundle\SecurityBundle\Attribute\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_USER')]
 final class AccountController extends AbstractController
@@ -13,6 +13,7 @@ final class AccountController extends AbstractController
     #[Route('/compte', name: 'app_compte', methods: ['GET'])]
     public function index(): Response
     {
+        /** @var \App\Entity\User $utilisateur */
         $utilisateur = $this->getUser();
 
         if ($this->isGranted('ROLE_ADMIN')) {
