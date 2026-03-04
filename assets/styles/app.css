@@ -12,7 +12,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #f5f5f5;
+    background-color: #F9F3E8;
 }
 
 /* ===================================
@@ -39,6 +39,8 @@ body {
     height: 100%;
     align-items: center;
     justify-content: center;
+    background-color: #F9F3E8;
+    border : none;
 }
 
 .logo-img {
@@ -64,14 +66,11 @@ body {
 
 .nav-btn {
     text-decoration: none;
-    color: #000000;
+    color: #ffffff;
     font-size: 1.1rem;
     font-weight: 600;
     padding: 0;
-    background-color: #2e7d32;
-    border: 2px solid #000000;
-    border-left: 1px solid #000000;
-    border-right: 1px solid #000000;
+    background-color: #206448;
     transition: all 0.3s ease;
     flex: 1;
     display: flex;
@@ -82,7 +81,7 @@ body {
 }
 
 .nav-btn:hover {
-    background-color: #388e3c;
+    background-color: #1b5e20;
     transform: scale(1.02);
     z-index: 1;
 }
@@ -93,8 +92,8 @@ body {
 .auth-container {
     max-width: 520px;
     margin: 2rem auto;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
+    background-color: #fffaf4;
+    border: 1px solid #e5d9c8;
     border-radius: 8px;
     padding: 24px;
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
@@ -194,7 +193,7 @@ body {
 
 /* Bloc de titre principal */
 .hero-section {
-    background-color: #e0e0e0;
+    background-color: #f0e6d3;
     padding: 3rem 2rem;
     border-radius: 10px;
     text-align: center;
@@ -219,7 +218,7 @@ body {
 }
 
 .content-card {
-    background-color: #ffffff;
+    background-color: #fffaf4;
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -253,7 +252,7 @@ body {
 }
 
 .sidebar-item {
-    background-color: #ffffff;
+    background-color: #fffaf4;
     padding: 1.25rem;
     border-radius: 8px;
     border-left: 4px solid #1b5e20;
@@ -276,7 +275,7 @@ body {
    FOOTER
    =================================== */
 .main-footer {
-    background-color: #212121;
+    background-color: #206448;
     color: #ffffff;
     text-align: center;
     padding: 2rem;
@@ -423,7 +422,7 @@ textarea.form-control {
 }
 
 .table tbody tr:hover {
-    background-color: #f5f5f5;
+    background-color: #f0e8d8;
 }
 
 .table a {
@@ -469,8 +468,8 @@ textarea.form-control {
 
 .list-group-item {
     padding: 1rem;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
+    background-color: #fdf8f2;
+    border: 1px solid #e5d9c8;
     margin-bottom: 0.5rem;
     border-radius: 4px;
     transition: all 0.3s ease;
@@ -484,7 +483,7 @@ textarea.form-control {
 }
 
 .list-group-item-action:hover {
-    background-color: #e8f5e9;
+    background-color: #f0e8d8;
     border-color: #1b5e20;
     transform: translateX(5px);
 }
