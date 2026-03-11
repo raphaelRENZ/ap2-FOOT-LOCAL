@@ -13,7 +13,7 @@
                 <thead>
                     <tr>
                         <th>Club</th>
-                        <th>Notifications activées</th>
+                        <th>Ville</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -26,12 +26,13 @@
                                 </a>
                             </td>
                             <td>
-                                {# Les notifications ne sont pas implémentées pour le moment #}
-                                <span class="badge bg-secondary">Non configuré</span>
+                                {{ club.city }}{% if club.country %}, {{ club.country }}{% endif %}
                             </td>
                             <td>
-                                {# TODO: Ajouter formulaire pour activer/désactiver notifications #}
-                                <button class="btn btn-sm btn-danger">Retirer</button>
+                                <form method="post" action="{{ path('app_clubs_toggle_favori', {id: club.id}) }}" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle_favori_' ~ club.id) }}">
+                                    <button type="submit" style="padding:.3rem .8rem; border:2px solid #ef4444; border-radius:6px; background:#fee2e2; color:#991b1b; font-weight:600; cursor:pointer;">− Retirer</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
@@ -40,7 +41,7 @@
         </div>
     {% else %}
         <div class="content-card">
-            <p>Vous n'avez pas encore de clubs favoris.</p>
+            <p>Vous n'avez pas encore de clubs favoris ? <a href="{{ path('app_clubs_index') }}">Découvrez les clubs disponibles et ajoutez-en à vos favoris</a>.</p>
         </div>
     {% endif %}
 {% endblock %}
