@@ -42,9 +42,15 @@ final class ApiRegisterController extends AbstractController
         $user->setIsVerified(true);
 
         if (!empty($data['firstName'])) {
+            if (strlen($data['firstName']) > 100) {
+                return $this->json(['status' => 'error', 'message' => 'Le prénom ne peut pas dépasser 100 caractères.'], 400);
+            }
             $user->setFirstName($data['firstName']);
         }
         if (!empty($data['lastName'])) {
+            if (strlen($data['lastName']) > 100) {
+                return $this->json(['status' => 'error', 'message' => 'Le nom ne peut pas dépasser 100 caractères.'], 400);
+            }
             $user->setLastName($data['lastName']);
         }
 

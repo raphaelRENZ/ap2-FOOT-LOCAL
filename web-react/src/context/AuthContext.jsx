@@ -1,21 +1,24 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-
-const TOKEN_KEY = 'footlocal_token'
+import { setApiToken } from '../services/api'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
+  // Le token est stocké uniquement en mémoire React (jamais en localStorage)
+  // pour prévenir le vol de token par XSS.
+  const [token, setToken] = useState(null)
   const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(!!localStorage.getItem(TOKEN_KEY))
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!token) {
+      setApiToken(null)
       setProfile(null)
       setLoading(false)
       return
     }
 
+    setApiToken(token)
     setLoading(true)
     fetch('/api/me', {
       headers: { Authorization: `Bearer ${token}` },
@@ -26,23 +29,22 @@ export function AuthProvider({ children }) {
       })
       .then((data) => setProfile(data))
       .catch(() => {
-        localStorage.removeItem(TOKEN_KEY)
         setToken(null)
         setProfile(null)
+        setApiToken(null)
       })
       .finally(() => setLoading(false))
   }, [token])
 
   function login(newToken) {
-    localStorage.setItem(TOKEN_KEY, newToken)
-    setLoading(true)
+    setApiToken(newToken)  // mise à jour immédiate pour les appels API suivants
     setToken(newToken)
   }
 
   function logout() {
-    localStorage.removeItem(TOKEN_KEY)
     setToken(null)
     setProfile(null)
+    setApiToken(null)
   }
 
   const isAdmin = Array.isArray(profile?.roles) && profile.roles.includes('ROLE_ADMIN')

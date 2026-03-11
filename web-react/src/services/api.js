@@ -1,23 +1,16 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
-export const TOKEN_KEY = 'footlocal_token'
+// Token stocké en mémoire uniquement (jamais dans localStorage/sessionStorage)
+// pour éviter les attaques XSS.
+let _token = null
 
-export function saveToken(token) {
-  localStorage.setItem(TOKEN_KEY, token)
-}
-
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY)
-}
-
-export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY)
+export function setApiToken(token) {
+  _token = token
 }
 
 function authHeaders() {
-  const token = getToken()
-  if (!token) return {}
-  return { Authorization: `Bearer ${token}` }
+  if (!_token) return {}
+  return { Authorization: `Bearer ${_token}` }
 }
 
 async function parseJson(response) {
