@@ -55,10 +55,21 @@ security:
 
     # Note: Only the *first* matching rule is applied
     access_control:
+        # Endpoints publics sans authentification (listé explicitement)
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/tasks/\d+$, methods: [DELETE], roles: ROLE_ADMIN }
-        - { path: ^/api, roles: PUBLIC_ACCESS }
+        - { path: ^/api/test, roles: PUBLIC_ACCESS }
+        # Endpoints admin (doit être avant le catch-all ^/api)
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+        # Endpoints utilisateur - authentification requise
+        - { path: ^/api/users, roles: IS_AUTHENTICATED_FULLY }
+        # Endpoints clubs/tournois/matchs/joueurs - DOIVENT être authentifiés (données sensibles)
+        - { path: ^/api/clubs, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/tournaments, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/matches, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/players, roles: IS_AUTHENTICATED_FULLY }
+        # Par défaut, tout autre endpoint /api nécessite authentification
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/compte, roles: ROLE_USER }
         - { path: ^/connexion, roles: PUBLIC_ACCESS }

@@ -37,17 +37,26 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
             
-            // Marquer comme vérifié pour le moment (pas d'email)
-            $user->setIsVerified(true);
+            // NE PAS marquer comme vérifié - demander confirmation email
+            // $user->setIsVerified(true) => Supprimé pour sécurité
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // TODO: Activer l'envoi d'email plus tard
-            // $this->emailVerifier->sendEmailConfirmation(...)
+            // Envoyer l'email de confirmation
+            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                (new TemplatedEmail())
+                    ->from(new Address('noreply@footlocal.local', 'Foot Local'))
+                    ->to($user->getEmail())
+                    ->htmlTemplate('registration/confirmation_email.html.twig')
+            );
 
-            $security->login($user, 'form_login', 'main');
-            return $this->redirectToRoute('app_compte');
+            // NE PAS connecter automatiquement - attendre vérification email
+            // $security->login($user, 'form_login', 'main');
+            // Supprimé pour sécurité: connexion auto sans vérification email
+
+            $this->addFlash('success', 'Un email de confirmation a été envoyé. Veuillez vérifier votre boîte mail.');
+            return $this->redirectToRoute('app_home');
         }
 
         return $this->render('registration/register.html.twig', [
