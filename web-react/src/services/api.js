@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 
 // Token stocké en mémoire uniquement (jamais dans localStorage/sessionStorage)
 // pour éviter les attaques XSS.
@@ -11,6 +11,14 @@ export function setApiToken(token) {
 function authHeaders() {
   if (!_token) return {}
   return { Authorization: `Bearer ${_token}` }
+}
+
+async function safeFetch(url, options) {
+  try {
+    return await fetch(url, options)
+  } catch {
+    throw new Error("Impossible de joindre l'API. Vérifiez que Symfony est démarré sur http://127.0.0.1:8000.")
+  }
 }
 
 async function parseJson(response) {
@@ -29,7 +37,7 @@ async function parseJson(response) {
 }
 
 async function apiFetch(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await safeFetch(`${API_BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json', ...authHeaders(), ...(options.headers ?? {}) },
     ...options,
   })
@@ -39,7 +47,7 @@ async function apiFetch(path, options = {}) {
 // ── Auth ──────────────────────────────────────────────────────────────
 
 export async function login(email, password) {
-  const response = await fetch(`${API_BASE_URL}/api/login`, {
+  const response = await safeFetch(`${API_BASE_URL}/api/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -52,7 +60,7 @@ export async function register(data) {
 }
 
 export async function getMe(token) {
-  const response = await fetch(`${API_BASE_URL}/api/me`, {
+  const response = await safeFetch(`${API_BASE_URL}/api/users/me`, {
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
   })
