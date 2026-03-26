@@ -9,6 +9,7 @@ use App\Repository\ClubRepository;
 use App\Repository\MatchRepository;
 use App\Repository\TournamentRepository;
 use App\Repository\UserRepository;
+use App\Service\EmailNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -377,7 +378,12 @@ final class ApiAdminController extends AbstractController
     }
 
     #[Route('/utilisateurs/{id}', name: 'utilisateurs_delete', methods: ['DELETE'])]
-    public function utilisateursDelete(int $id, UserRepository $repo, EntityManagerInterface $em): JsonResponse
+    public function utilisateursDelete(
+        int $id,
+        UserRepository $repo,
+        EntityManagerInterface $em,
+        EmailNotificationService $emailNotificationService
+    ): JsonResponse
     {
         $user = $repo->find($id);
 
@@ -387,6 +393,12 @@ final class ApiAdminController extends AbstractController
 
         if ($user === $this->getUser()) {
             return $this->json(['status' => 'error', 'message' => 'Vous ne pouvez pas supprimer votre propre compte.'], 400);
+        }
+
+        try {
+            $emailNotificationService->sendAccountDeletionConfirmation($user, 'policy_violation');
+        } catch (\Throwable $e) {
+            // L'email a échoué, mais on continue la suppression
         }
 
         $em->remove($user);
