@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/users', name: 'api_users')]
 final class ApiUserController extends AbstractController
@@ -127,6 +128,7 @@ final class ApiUserController extends AbstractController
     }
 
     #[Route('/{id}/favorites', name: 'favorites', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function favorites(int $id, UserRepository $userRepository): JsonResponse
     {
         $user = $userRepository->find($id);
@@ -149,6 +151,7 @@ final class ApiUserController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function show(int $id, UserRepository $userRepository): JsonResponse
     {
         $user = $userRepository->find($id);

@@ -1606,6 +1606,34 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         cache?: scalar|null|Param, // Storage to track blocked tokens // Default: "cache.app"
  *     },
  * }
+ * @psalm-type NelmioCorsConfig = array{
+ *     defaults?: array{
+ *         allow_credentials?: bool|Param, // Default: false
+ *         allow_origin?: list<scalar|null|Param>,
+ *         allow_headers?: list<scalar|null|Param>,
+ *         allow_methods?: list<scalar|null|Param>,
+ *         allow_private_network?: bool|Param, // Default: false
+ *         expose_headers?: list<scalar|null|Param>,
+ *         max_age?: scalar|null|Param, // Default: 0
+ *         hosts?: list<scalar|null|Param>,
+ *         origin_regex?: bool|Param, // Default: false
+ *         forced_allow_origin_value?: scalar|null|Param, // Default: null
+ *         skip_same_as_origin?: bool|Param, // Default: true
+ *     },
+ *     paths?: array<string, array{ // Default: []
+ *         allow_credentials?: bool|Param,
+ *         allow_origin?: list<scalar|null|Param>,
+ *         allow_headers?: list<scalar|null|Param>,
+ *         allow_methods?: list<scalar|null|Param>,
+ *         allow_private_network?: bool|Param,
+ *         expose_headers?: list<scalar|null|Param>,
+ *         max_age?: scalar|null|Param, // Default: 0
+ *         hosts?: list<scalar|null|Param>,
+ *         origin_regex?: bool|Param,
+ *         forced_allow_origin_value?: scalar|null|Param, // Default: null
+ *         skip_same_as_origin?: bool|Param,
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1621,6 +1649,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     monolog?: MonologConfig,
  *     symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *     lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *     nelmio_cors?: NelmioCorsConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1639,6 +1668,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         maker?: MakerConfig,
  *         symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         nelmio_cors?: NelmioCorsConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1655,6 +1685,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         monolog?: MonologConfig,
  *         symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         nelmio_cors?: NelmioCorsConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1672,6 +1703,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         monolog?: MonologConfig,
  *         symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         nelmio_cors?: NelmioCorsConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

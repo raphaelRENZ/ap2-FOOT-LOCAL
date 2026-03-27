@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Security\EmailVerifier;
+use App\Service\EmailNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +25,13 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/inscription', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        Security $security,
+        EntityManagerInterface $entityManager,
+        EmailNotificationService $emailNotificationService
+    ): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -42,6 +49,12 @@ class RegistrationController extends AbstractController
 
             $entityManager->persist($user);
             $entityManager->flush();
+
+            try {
+                $emailNotificationService->sendWelcomeEmail($user);
+            } catch (\Throwable $e) {
+                // L'email a échoué, mais l'inscription continue
+            }
 
             // TODO: Activer l'envoi d'email plus tard
             // $this->emailVerifier->sendEmailConfirmation(...)

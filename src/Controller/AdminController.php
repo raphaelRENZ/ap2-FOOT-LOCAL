@@ -9,6 +9,7 @@ use App\Repository\ClubRepository;
 use App\Repository\MatchRepository;
 use App\Repository\TournamentRepository;
 use App\Repository\UserRepository;
+use App\Service\EmailNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -326,7 +327,13 @@ class AdminController extends AbstractController
     }
 
     #[Route('/utilisateurs/{id}/delete', name: 'utilisateurs_delete', methods: ['POST'])]
-    public function utilisateursDelete(int $id, Request $request, UserRepository $repo, EntityManagerInterface $em): Response
+    public function utilisateursDelete(
+        int $id,
+        Request $request,
+        UserRepository $repo,
+        EntityManagerInterface $em,
+        EmailNotificationService $emailNotificationService
+    ): Response
     {
         $user = $repo->find($id) ?? throw $this->createNotFoundException('Utilisateur introuvable.');
 
@@ -336,6 +343,11 @@ class AdminController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('delete_user_' . $id, (string) $request->request->get('_token'))) {
+            try {
+                $emailNotificationService->sendAccountDeletionConfirmation($user, 'policy_violation');
+            } catch (\Throwable $e) {
+                // L'email a échoué, mais on continue la suppression
+            }
             $em->remove($user);
             $em->flush();
             $this->addFlash('success', 'Utilisateur supprimé.');
