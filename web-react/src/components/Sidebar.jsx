@@ -1,4 +1,17 @@
+import { useLocation } from 'react-router-dom'
+
 export default function Sidebar({ children }) {
+  const location = useLocation()
+
+  // Liste des pages où la sidebar ne doit PAS s'afficher
+  const hiddenOnPaths = ['/connexion', '/inscription']
+
+  // Si la page actuelle est dans la liste, on n'affiche rien
+  if (hiddenOnPaths.includes(location.pathname)) {
+    return null
+  }
+
+  // Contenu par défaut si aucun contenu spécifique n'est fourni
   const defaultContent = (
     <>
       <div className="sidebar-item">
@@ -18,6 +31,7 @@ export default function Sidebar({ children }) {
 
   return (
     <aside className="sidebar">
+      {/* Affiche le contenu spécifique s'il existe, sinon le contenu par défaut */}
       {children ?? defaultContent}
     </aside>
   )
