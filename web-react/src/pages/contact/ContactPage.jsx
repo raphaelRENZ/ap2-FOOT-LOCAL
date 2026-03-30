@@ -13,6 +13,7 @@ const sidebarContent = (
 export default function ContactPage() {
   const [nom, setNom]         = useState('')
   const [email, setEmail]     = useState('')
+  const [objet, setObjet]     = useState('') // 1. Ajout du state pour l'objet
   const [message, setMessage] = useState('')
   const [success, setSuccess] = useState(false)
 
@@ -22,6 +23,7 @@ export default function ContactPage() {
     setSuccess(true)
     setNom('')
     setEmail('')
+    setObjet('') // 2. On vide le champ objet après l'envoi
     setMessage('')
   }
 
@@ -40,6 +42,7 @@ export default function ContactPage() {
       <div className="content-card">
         <h2>Formulaire de contact</h2>
         <form onSubmit={handleSubmit}>
+          {/* Rubrique Nom */}
           <div className="mb-3">
             <label htmlFor="nom" className="form-label">Nom</label>
             <input
@@ -51,6 +54,8 @@ export default function ContactPage() {
               required
             />
           </div>
+
+          {/* Rubrique Email */}
           <div className="mb-3">
             <label htmlFor="email" className="form-label">Email</label>
             <input
@@ -62,6 +67,30 @@ export default function ContactPage() {
               required
             />
           </div>
+
+        {/* Rubrique Objet (Menu déroulant) */}
+<div className="mb-3">
+  <label htmlFor="objet" className="form-label">Objet de votre message</label>
+  <select
+    className="form-select" // On utilise form-select pour le style Bootstrap
+    id="objet"
+    value={objet}
+    onChange={(e) => setObjet(e.target.value)}
+    required
+  >
+    {/* Option vide par défaut */}
+    <option value="" disabled>-- Choisissez un motif --</option>
+    
+    {/* Tes différents choix */}
+    <option value="Information">Demande d'information</option>
+    <option value="Club">Question sur un club</option>
+    <option value="Tournoi">Problème avec un tournoi</option>
+    <option value="Technique">Signaler un bug technique</option>
+    <option value="Autre">Autre demande</option>
+  </select>
+</div>
+
+          {/* Rubrique Message */}
           <div className="mb-3">
             <label htmlFor="message" className="form-label">Message</label>
             <textarea
@@ -73,6 +102,7 @@ export default function ContactPage() {
               required
             />
           </div>
+
           <button type="submit" className="btn btn-primary">Envoyer</button>
         </form>
       </div>
