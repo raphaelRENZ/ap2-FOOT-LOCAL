@@ -23,9 +23,8 @@
             <main class="main-content">
                 {% block body %}{% endblock %}
             </main>
-            
-            {# Sidebar à droite #}
-            <aside class="sidebar">
+
+            {% set sidebar_content %}
                 {% block sidebar %}
                     <div class="sidebar-item">
                         <h3>Info 1</h3>
@@ -40,7 +39,14 @@
                         <p>Placeholder info</p>
                     </div>
                 {% endblock %}
-            </aside>
+            {% endset %}
+
+            {% if sidebar_content|trim is not empty %}
+                {# Sidebar à droite #}
+                <aside class="sidebar">
+                    {{ sidebar_content|raw }}
+                </aside>
+            {% endif %}
         </div>
         
         {# Footer #}

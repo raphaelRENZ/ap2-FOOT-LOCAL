@@ -288,14 +288,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
+     * Keep session/remember-me payload small and safe: avoid serializing Doctrine collections.
      */
     public function __serialize(): array
     {
-        $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'password' => hash('crc32c', (string) $this->password),
+            'roles' => $this->roles,
+            'isActive' => $this->isActive,
+            'isVerified' => $this->isVerified,
+        ];
+    }
 
-        return $data;
+    public function __unserialize(array $data): void
+    {
+        $this->id = $data['id'] ?? null;
+        $this->email = $data['email'] ?? null;
+        $this->password = $data['password'] ?? null;
+        $this->roles = $data['roles'] ?? [];
+        $this->isActive = $data['isActive'] ?? true;
+        $this->isVerified = $data['isVerified'] ?? false;
     }
 
     #[\Deprecated]
