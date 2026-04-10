@@ -1,16 +1,39 @@
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+const isExpoGo = Constants.appOwnership === 'expo' || Constants.executionEnvironment === 'storeClient';
+const isAndroidExpoGo = Platform.OS === 'android' && isExpoGo;
+const Notifications = !isAndroidExpoGo ? require('expo-notifications') : null;
+let expoGoWarningShown = false;
+
+function warnExpoGoLimit() {
+  if (expoGoWarningShown) return;
+  expoGoWarningShown = true;
+  console.warn(
+    'Notifications distantes non supportees dans Expo Go (Android). Utilise un development build pour tester expo-notifications.'
+  );
+}
+
+if (Notifications) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 
 export async function ensureNotificationPermission() {
+  if (isAndroidExpoGo) {
+    warnExpoGoLimit();
+    return false;
+  }
+
+  if (!Notifications) return false;
+
   if (!Device.isDevice) return false;
 
   const { status: existing } = await Notifications.getPermissionsAsync();
