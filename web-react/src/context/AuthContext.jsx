@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { setApiToken } from '../services/api'
+import { getMe, setApiToken } from '../services/api'
 
 const AuthContext = createContext(null)
 
@@ -20,13 +20,7 @@ export function AuthProvider({ children }) {
 
     setApiToken(token)
     setLoading(true)
-    fetch('/api/me', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Token invalide')
-        return res.json()
-      })
+    getMe(token)
       .then((data) => setProfile(data))
       .catch(() => {
         setToken(null)
