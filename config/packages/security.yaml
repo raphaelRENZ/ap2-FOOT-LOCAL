@@ -63,11 +63,12 @@ security:
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         # Endpoints utilisateur - authentification requise
         - { path: ^/api/users, roles: IS_AUTHENTICATED_FULLY }
-        # Endpoints clubs/tournois/matchs/joueurs - DOIVENT être authentifiés (données sensibles)
-        - { path: ^/api/clubs, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/tournaments, roles: IS_AUTHENTICATED_FULLY }
+        # Endpoints clubs/matchs/joueurs - DOIVENT être authentifiés (données sensibles)
+        - { path: ^/api/clubs, roles: PUBLIC_ACCESS }
         - { path: ^/api/matches, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/players, roles: IS_AUTHENTICATED_FULLY }
+        # Les tournois sont visibles publiquement depuis le front React
+        - { path: ^/api/tournaments, roles: PUBLIC_ACCESS }
         # Par défaut, tout autre endpoint /api nécessite authentification
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/admin, roles: ROLE_ADMIN }

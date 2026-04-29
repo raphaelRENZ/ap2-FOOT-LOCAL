@@ -41,7 +41,7 @@ export default function ClubListPage() {
                     <td>{club.name}</td>
                     <td>{club.city ?? '—'}</td>
                     <td>
-                      <Link to={`/clubs/${club.id}`} className="btn btn-sm btn-primary">
+                      <Link to={`/clubs/${club.id}`} className="btn btn-sm btn-club-details">
                         Voir détails
                       </Link>
                     </td>
