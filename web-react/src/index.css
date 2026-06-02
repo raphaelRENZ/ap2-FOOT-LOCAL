@@ -600,13 +600,13 @@ textarea.form-control {
     background-color: #f8fafc;
 }
 
-.table a {
+.table a:not(.btn) {
     color: #1b5e20;
     text-decoration: none;
     font-weight: 600;
 }
 
-.table a:hover {
+.table a:not(.btn):hover {
     text-decoration: underline;
 }
 
