@@ -31,6 +31,7 @@ export default function ContactPage() {
     <Layout sidebar={sidebarContent}>
       <div className="hero-section">
         <h1>Nous contacter</h1>
+        <p>Envoyez-nous un message pour toute question ou demande d'information concernant la Maison des Ligues.</p>
       </div>
 
       {success && (

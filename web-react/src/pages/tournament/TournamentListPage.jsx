@@ -19,6 +19,7 @@ export default function TournamentListPage() {
     <Layout>
       <div className="hero-section">
         <h1>Liste des tournois</h1>
+        <p>Consultez la liste des tournois en cours et à venir pour ne manquer aucune compétition.</p>
       </div>
 
       {loading && <p className="loading-text">Chargement...</p>}

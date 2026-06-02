@@ -19,6 +19,7 @@ export default function ClubListPage() {
     <Layout>
       <div className="hero-section">
         <h1>Liste des clubs</h1>
+        <p>Découvrez tous les clubs inscrits dans notre ligue et consultez leurs informations détaillées.</p>
       </div>
 
       {loading && <p className="loading-text">Chargement...</p>}
