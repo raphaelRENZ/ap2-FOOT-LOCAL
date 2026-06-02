@@ -1,7 +1,7 @@
 import Header from './Header'
 import Sidebar from './Sidebar'
 
-export default function Layout({ children, sidebar }) {
+export default function Layout({ children, sidebar, hideSidebar = false }) {
   return (
     <>
       <Header />
@@ -9,7 +9,7 @@ export default function Layout({ children, sidebar }) {
         <main className="main-content">
           {children}
         </main>
-        <Sidebar>{sidebar}</Sidebar>
+        {!hideSidebar && <Sidebar>{sidebar}</Sidebar>}
       </div>
       <footer className="main-footer">
         <p>&copy; La Maison des Ligues</p>

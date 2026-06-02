@@ -29,7 +29,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <Layout>
+    <Layout hideSidebar={true}>
       <div className="auth-container">
         <h1 className="auth-title">Inscription</h1>
 

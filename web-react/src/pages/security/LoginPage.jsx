@@ -37,7 +37,7 @@ export default function LoginPage() {
   }
 
   return (
-    <Layout>
+    <Layout hideSidebar={true}>
       <div className="auth-container">
         <h1 className="auth-title">Connexion</h1>
 
