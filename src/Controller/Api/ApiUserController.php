@@ -6,9 +6,12 @@ use App\Repository\ClubRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 #[Route('/api/users', name: 'api_users')]
 final class ApiUserController extends AbstractController
@@ -124,6 +127,64 @@ final class ApiUserController extends AbstractController
         return $this->json([
             'status' => 'success',
             'message' => 'Club removed from favorites',
+        ]);
+    }
+
+    #[Route('/me', name: 'me_delete', methods: ['DELETE'])]
+    public function deleteMe(Request $request, EntityManagerInterface $em, MailerInterface $mailer): JsonResponse
+    {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $payload = json_decode($request->getContent() ?: '{}', true);
+        if (!is_array($payload)) {
+            return $this->json(['status' => 'error', 'message' => 'Payload invalide.'], 400);
+        }
+
+        $reason = trim((string) ($payload['reason'] ?? ''));
+        $details = trim((string) ($payload['details'] ?? ''));
+
+        if ($reason === '') {
+            return $this->json(['status' => 'error', 'message' => 'Veuillez choisir une raison de suppression.'], 400);
+        }
+
+        $emailAddress = (string) $user->getEmail();
+        $displayName = trim(($user->getFirstName() ?? '') . ' ' . ($user->getLastName() ?? '')) ?: $emailAddress;
+
+        $message = (new Email())
+            ->from('no-reply@footlocal.com')
+            ->to($emailAddress)
+            ->subject('Confirmation de suppression de votre compte FootLocal')
+            ->text(sprintf(
+                "Bonjour %s,\n\nVotre compte FootLocal a bien été supprimé.\n\nRaison sélectionnée : %s\n%s\n\nSi vous n'êtes pas à l'origine de cette action, contactez-nous immédiatement.\n",
+                $displayName,
+                $reason,
+                $details !== '' ? 'Détail complémentaire : ' . $details . "\n" : ''
+            ));
+
+        $mailSent = false;
+        $mailError = null;
+
+        try {
+            $mailer->send($message);
+            $mailSent = true;
+        } catch (\Throwable $throwable) {
+            $mailError = $throwable->getMessage();
+        }
+
+        $em->remove($user);
+        $em->flush();
+
+        return $this->json([
+            'status' => 'success',
+            'message' => 'Votre compte a été supprimé.',
+            'emailSent' => $mailSent,
+            'emailError' => $mailError,
+            'reason' => $reason,
         ]);
     }
 

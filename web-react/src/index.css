@@ -245,6 +245,12 @@ body {
     line-height: 1.6;
 }
 
+.account-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
 /* ===================================
    SIDEBAR
    =================================== */
@@ -462,6 +468,129 @@ textarea.form-control {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+}
+
+/* ===================================
+   MODALES - Compte utilisateur
+   =================================== */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 24, 22, 0.62);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 1200;
+}
+
+.modal-card {
+    width: min(100%, 620px);
+    background: #fffaf4;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    border: 1px solid #e6dccb;
+}
+
+.modal-card-danger {
+    border-color: #ef9a9a;
+}
+
+.modal-card h2 {
+    color: #1b5e20;
+    margin-bottom: 0.75rem;
+}
+
+.modal-text {
+    color: #4f4f4f;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.modal-section {
+    margin-bottom: 1rem;
+}
+
+.modal-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+.reason-list {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.reason-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid #d8d0c4;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.reason-item:hover {
+    border-color: #1b5e20;
+    transform: translateY(-1px);
+}
+
+.reason-item.is-selected {
+    border-color: #1b5e20;
+    background: rgba(27, 94, 32, 0.06);
+}
+
+.reason-item input {
+    margin: 0;
+}
+
+.modal-summary {
+    padding: 1rem;
+    border-radius: 10px;
+    background: #f8f4eb;
+    border: 1px solid #e4d8c7;
+    color: #4a4a4a;
+    margin-bottom: 1rem;
+}
+
+.modal-summary p + p {
+    margin-top: 0.5rem;
+}
+
+.modal-error {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 1rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    .modal-card {
+        padding: 1.25rem;
+    }
+
+    .modal-actions {
+        justify-content: stretch;
+    }
+
+    .modal-actions .btn {
+        width: 100%;
+    }
 }
 
 .alert-success {

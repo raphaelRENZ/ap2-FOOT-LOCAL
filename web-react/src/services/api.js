@@ -83,6 +83,13 @@ export async function getMe(token) {
   return parseJson(response)
 }
 
+export async function deleteMyAccount({ reason, details }) {
+  return apiFetch('/api/users/me', {
+    method: 'DELETE',
+    body: JSON.stringify({ reason, details }),
+  })
+}
+
 // ── Clubs publics ─────────────────────────────────────────────────────
 
 export async function getClubs() {
