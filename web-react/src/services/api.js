@@ -1,4 +1,5 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+const RAW_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').trim()
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/$/, '')
 
 // Token stocké en mémoire uniquement (jamais dans localStorage/sessionStorage)
 // pour éviter les attaques XSS.
@@ -11,6 +12,21 @@ export function setApiToken(token) {
 function authHeaders() {
   if (!_token) return {}
   return { Authorization: `Bearer ${_token}` }
+}
+
+function buildApiUrl(path) {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  if (!API_BASE_URL) return normalizedPath
+
+  const baseEndsWithApi = API_BASE_URL.endsWith('/api')
+  const pathStartsWithApi = normalizedPath === '/api' || normalizedPath.startsWith('/api/')
+
+  // Avoid '/api/api/...' when VITE_API_BASE_URL is '/api' and paths already include '/api'.
+  if (baseEndsWithApi && pathStartsWithApi) {
+    return `${API_BASE_URL}${normalizedPath.slice(4)}`
+  }
+
+  return `${API_BASE_URL}${normalizedPath}`
 }
 
 async function safeFetch(url, options) {
@@ -37,7 +53,7 @@ async function parseJson(response) {
 }
 
 async function apiFetch(path, options = {}) {
-  const response = await safeFetch(`${API_BASE_URL}${path}`, {
+  const response = await safeFetch(buildApiUrl(path), {
     headers: { 'Content-Type': 'application/json', ...authHeaders(), ...(options.headers ?? {}) },
     ...options,
   })
@@ -47,7 +63,7 @@ async function apiFetch(path, options = {}) {
 // ── Auth ──────────────────────────────────────────────────────────────
 
 export async function login(email, password) {
-  const response = await safeFetch(`${API_BASE_URL}/api/login`, {
+  const response = await safeFetch(buildApiUrl('/api/login'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -60,7 +76,7 @@ export async function register(data) {
 }
 
 export async function getMe(token) {
-  const response = await safeFetch(`${API_BASE_URL}/api/users/me`, {
+  const response = await safeFetch(buildApiUrl('/api/users/me'), {
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
   })
