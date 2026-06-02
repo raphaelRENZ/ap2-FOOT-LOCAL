@@ -13,6 +13,7 @@ const sidebarContent = (
 export default function ContactPage() {
   const [nom, setNom]         = useState('')
   const [email, setEmail]     = useState('')
+  const [objet, setObjet]     = useState('')
   const [message, setMessage] = useState('')
   const [success, setSuccess] = useState(false)
 
@@ -22,6 +23,7 @@ export default function ContactPage() {
     setSuccess(true)
     setNom('')
     setEmail('')
+    setObjet('')
     setMessage('')
   }
 
@@ -59,6 +61,17 @@ export default function ContactPage() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="objet" className="form-label">Objet</label>
+            <input
+              type="text"
+              className="form-control"
+              id="objet"
+              value={objet}
+              onChange={(e) => setObjet(e.target.value)}
               required
             />
           </div>
