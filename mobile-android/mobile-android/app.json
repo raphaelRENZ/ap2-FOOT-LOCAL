@@ -8,8 +8,12 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "extra": {
+      "apiPort": "8000"
+    },
     "android": {
-      "package": "com.footlocal.mobile"
+      "package": "com.footlocal.mobile",
+      "usesCleartextTraffic": true
     }
   }
 }
