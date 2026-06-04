@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Repository\UserRepository;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,8 @@ final class AuthController extends AbstractController
     public function login(
         Request $request,
         UserRepository $userRepository,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        JWTTokenManagerInterface $jwtManager
     ): JsonResponse {
         // Handle CORS preflight
         if ($request->getMethod() === 'OPTIONS') {
@@ -62,10 +64,11 @@ final class AuthController extends AbstractController
                 );
             }
 
-            // Return success message: indicates to frontend to use Symfony form login
+            // Generate JWT token
+            $token = $jwtManager->create($user);
+
             return $this->json([
-                'status' => 'authenticated',
-                'message' => 'Use form login for JWT token generation',
+                'token' => $token,
                 'user' => [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
