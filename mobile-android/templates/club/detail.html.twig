@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ club.name }} - Foot Local{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>{{ club.name }}</h1>
+        <p>{{ club.city }}{% if club.country %}, {{ club.country }}{% endif %}</p>
+    </div>
+
+    <div class="content-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+            <div>
+                <h2>Informations</h2>
+                {% if club.city %}<p><strong>Ville :</strong> {{ club.city }}</p>{% endif %}
+                {% if club.stadium %}<p><strong>Stade :</strong> {{ club.stadium }}</p>{% endif %}
+                {% if club.foundedYear %}<p><strong>Fondé en :</strong> {{ club.foundedYear }}</p>{% endif %}
+                {% if club.colors %}<p><strong>Couleurs :</strong> {{ club.colors }}</p>{% endif %}
+                {% if club.description %}<p><strong>Description :</strong> {{ club.description }}</p>{% endif %}
+            </div>
+
+            {# Bouton favori #}
+            {% if is_granted('ROLE_USER') %}
+                <form method="post" action="{{ path('app_clubs_toggle_favori', {id: club.id}) }}" id="form-favori">
+                    <input type="hidden" name="_token" value="{{ csrf_token('toggle_favori_' ~ club.id) }}">
+                    <button type="submit" class="btn-favori {% if isFavori %}favori-actif{% endif %}" id="btn-favori"
+                            title="{% if isFavori %}Retirer de mes suivis{% else %}Suivre ce club{% endif %}">
+                        <span id="favori-icon">{% if isFavori %}−{% else %}+{% endif %}</span>
+                        <span id="favori-texte">{% if isFavori %}Dans mes suivis{% else %}Suivre{% endif %}</span>
+                    </button>
+                </form>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn-favori">
+                    + Connectez-vous pour suivre ce club
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h2>Liste des joueurs</h2>
+        {% if joueurs is not empty %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Poste</th>
+                        <th>Numéro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for joueur in joueurs %}
+                        <tr>
+                            <td>{{ joueur.lastName }}</td>
+                            <td>{{ joueur.firstName }}</td>
+                            <td>{{ joueur.position }}</td>
+                            <td>{{ joueur.jerseyNumber ?? '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Aucun joueur enregistré pour ce club.</p>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .btn-favori {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .6rem 1.2rem;
+            border: 2px solid #a78bfa;
+            border-radius: 8px;
+            background: white;
+            color: #5b21b6;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .2s;
+        }
+        .btn-favori:hover {
+            background: #ede9fe;
+        }
+        .btn-favori.favori-actif {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .btn-favori.favori-actif:hover {
+            background: #fecaca;
+        }
+    </style>
+{% endblock %}

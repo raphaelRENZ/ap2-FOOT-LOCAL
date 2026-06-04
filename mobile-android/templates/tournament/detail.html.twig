@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ tournoi.nom }} - Foot Local{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>{{ tournoi.nom }}</h1>
+        <p><strong>Date de début :</strong> {{ tournoi.date_debut }}</p>
+    </div>
+
+    <div class="content-card">
+        <h2>Matchs à venir</h2>
+        {% if matchsAVenir is not empty %}
+            <ul class="list-group">
+                {% for match in matchsAVenir %}
+                    <li class="list-group-item">
+                        {{ match.domicile }} vs {{ match.exterieur }} - {{ match.date }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun match à venir pour le moment.</p>
+        {% endif %}
+    </div>
+
+    <div class="content-card">
+        <h2>Anciens matchs</h2>
+        {% if anciensMatchs is not empty %}
+            <ul class="list-group">
+                {% for match in anciensMatchs %}
+                    <li class="list-group-item">
+                        {{ match.domicile }} {{ match.score }} {{ match.exterieur }} - {{ match.date }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun match passé pour le moment.</p>
+        {% endif %}
+    </div>
+{% endblock %}

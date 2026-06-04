@@ -1,0 +1,632 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-03-11",
+  "__export_source": "insomnia.desktop.app",
+  "resources": [
+    {
+      "_id": "wrk_footlocal",
+      "_type": "workspace",
+      "name": "FootLocal API",
+      "description": "Tests fonctionnels et de sécurité de l'API Symfony FootLocal"
+    },
+    {
+      "_id": "env_footlocal",
+      "_type": "environment",
+      "name": "FootLocal – Local",
+      "data": {
+        "base_url": "http://localhost:8000",
+        "jwt_token": "",
+        "jwt_admin": "",
+        "user_email": "user@example.com",
+        "user_password": "user1234",
+        "admin_email": "admin@example.com",
+        "admin_password": "admin1234",
+        "club_id": 1,
+        "tournament_id": 1,
+        "match_id": 1,
+        "user_id": 2
+      },
+      "parentId": "wrk_footlocal"
+    },
+
+    { "_id": "fld_auth", "_type": "request_group", "name": "🔐 Auth", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_login_user",
+      "_type": "request",
+      "name": "[200] Login utilisateur valide",
+      "method": "POST",
+      "url": "{{ base_url }}/api/login",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"{{ user_email }}\",\n  \"password\": \"{{ user_password }}\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient un token JWT', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body).to.have.property('token');\n  insomnia.expect(body.token).to.be.a('string');\n  insomnia.expect(body.token.length).to.be.greaterThan(20);\n});\nconst body = insomnia.response.json();\nif (body.token) { insomnia.environment.set('jwt_token', body.token); }",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_login_admin",
+      "_type": "request",
+      "name": "[200] Login admin valide",
+      "method": "POST",
+      "url": "{{ base_url }}/api/login",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"{{ admin_email }}\",\n  \"password\": \"{{ admin_password }}\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient un token JWT admin', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body).to.have.property('token');\n  insomnia.expect(body.token).to.be.a('string');\n});\nconst body = insomnia.response.json();\nif (body.token) { insomnia.environment.set('jwt_admin', body.token); }",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_login_bad_pass",
+      "_type": "request",
+      "name": "[401] Login mauvais mot de passe",
+      "method": "POST",
+      "url": "{{ base_url }}/api/login",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"{{ user_email }}\",\n  \"password\": \"MAUVAIS_MDP\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 401 – identifiants invalides', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});\ninsomnia.test('Pas de token dans la reponse', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body).to.not.have.property('token');\n});",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_login_no_body",
+      "_type": "request",
+      "name": "[401] Login sans body",
+      "method": "POST",
+      "url": "{{ base_url }}/api/login",
+      "body": { "mimeType": "application/json", "text": "{}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 401 – body vide', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_login_sql",
+      "_type": "request",
+      "name": "[401] Login – tentative SQL injection",
+      "method": "POST",
+      "url": "{{ base_url }}/api/login",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"' OR 1=1 --\",\n  \"password\": \"anything\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 401 – SQL injection rejetee', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});\ninsomnia.test('Pas de token retourne', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body).to.not.have.property('token');\n});",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_login_bad_ct",
+      "_type": "request",
+      "name": "[400] Login sans Content-Type JSON",
+      "method": "POST",
+      "url": "{{ base_url }}/api/login",
+      "body": { "mimeType": "text/plain", "text": "email=admin@example.com&password=admin1234" },
+      "headers": [{ "name": "Content-Type", "value": "text/plain" }],
+      "afterResponseScript": "insomnia.test('Status non-200 – form-data refuse', () => {\n  insomnia.expect(insomnia.response.status).to.not.equal(200);\n});\ninsomnia.test('Pas de token retourne', () => {\n  insomnia.expect(insomnia.response.body).to.not.contain('\"token\"');\n});",
+      "parentId": "fld_auth"
+    },
+
+    { "_id": "fld_register", "_type": "request_group", "name": "📝 Inscription", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_register_ok",
+      "_type": "request",
+      "name": "[201] Inscription valide",
+      "method": "POST",
+      "url": "{{ base_url }}/api/register",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"newuser_test@test.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 201 – compte cree', () => {\n  insomnia.expect(insomnia.response.status).to.equal(201);\n});\ninsomnia.test('Reponse contient id et email', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.user).to.have.property('id');\n  insomnia.expect(body.user).to.have.property('email');\n});\ninsomnia.test('Pas de mot de passe dans la reponse', () => {\n  insomnia.expect(insomnia.response.body).to.not.contain('password');\n});",
+      "parentId": "fld_register"
+    },
+    {
+      "_id": "req_register_email_invalid",
+      "_type": "request",
+      "name": "[400] Inscription email invalide",
+      "method": "POST",
+      "url": "{{ base_url }}/api/register",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"pas-un-email\",\n  \"password\": \"password123\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 400 – email invalide', () => {\n  insomnia.expect(insomnia.response.status).to.equal(400);\n});\ninsomnia.test('Message erreur present', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('error');\n  insomnia.expect(body).to.have.property('message');\n});",
+      "parentId": "fld_register"
+    },
+    {
+      "_id": "req_register_short_pass",
+      "_type": "request",
+      "name": "[400] Inscription mot de passe trop court",
+      "method": "POST",
+      "url": "{{ base_url }}/api/register",
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"test2@test.com\",\n  \"password\": \"abc\"\n}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 400 – mot de passe trop court', () => {\n  insomnia.expect(insomnia.response.status).to.equal(400);\n});\ninsomnia.test('Message erreur present', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('error');\n});",
+      "parentId": "fld_register"
+    },
+    {
+      "_id": "req_register_missing",
+      "_type": "request",
+      "name": "[400] Inscription champs manquants",
+      "method": "POST",
+      "url": "{{ base_url }}/api/register",
+      "body": { "mimeType": "application/json", "text": "{}" },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "afterResponseScript": "insomnia.test('Status 400 – champs manquants', () => {\n  insomnia.expect(insomnia.response.status).to.equal(400);\n});",
+      "parentId": "fld_register"
+    },
+
+    { "_id": "fld_me", "_type": "request_group", "name": "👤 Profil /api/me", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_me_ok",
+      "_type": "request",
+      "name": "[200] GET /api/users/me – authentifie",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/me",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient id, email, roles', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body).to.have.property('id');\n  insomnia.expect(body).to.have.property('email');\n  insomnia.expect(body).to.have.property('roles');\n  insomnia.expect(body.roles).to.be.an('array');\n});\ninsomnia.test('Ne contient pas le mot de passe', () => {\n  insomnia.expect(insomnia.response.body).to.not.contain('password');\n});",
+      "parentId": "fld_me"
+    },
+    {
+      "_id": "req_me_no_token",
+      "_type": "request",
+      "name": "[401] GET /api/users/me – sans token",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/me",
+      "headers": [],
+      "afterResponseScript": "insomnia.test('Status 401 – token manquant', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_me"
+    },
+    {
+      "_id": "req_me_fake_token",
+      "_type": "request",
+      "name": "[401] GET /api/users/me – token forge",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/me",
+      "headers": [{ "name": "Authorization", "value": "Bearer eyJhbGciOiJSUzI1NiJ9.fakePayload.fakeSignature" }],
+      "afterResponseScript": "insomnia.test('Status 401 – token avec signature invalide', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_me"
+    },
+
+    { "_id": "fld_clubs", "_type": "request_group", "name": "⚽ Clubs (public)", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_clubs_list",
+      "_type": "request",
+      "name": "[200] GET /api/clubs – liste complete",
+      "method": "GET",
+      "url": "{{ base_url }}/api/clubs",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient status success et data array', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.be.an('array');\n  insomnia.expect(body.total).to.be.a('number');\n});",
+      "parentId": "fld_clubs"
+    },
+    {
+      "_id": "req_clubs_show",
+      "_type": "request",
+      "name": "[200] GET /api/clubs/:id – detail",
+      "method": "GET",
+      "url": "{{ base_url }}/api/clubs/{{ club_id }}",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient id, name, players', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.have.property('id');\n  insomnia.expect(body.data).to.have.property('name');\n  insomnia.expect(body.data.players).to.be.an('array');\n});",
+      "parentId": "fld_clubs"
+    },
+    {
+      "_id": "req_clubs_show_404",
+      "_type": "request",
+      "name": "[404] GET /api/clubs/99999 – club inexistant",
+      "method": "GET",
+      "url": "{{ base_url }}/api/clubs/99999",
+      "afterResponseScript": "insomnia.test('Status 404', () => {\n  insomnia.expect(insomnia.response.status).to.equal(404);\n});\ninsomnia.test('Message erreur present', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('error');\n  insomnia.expect(body).to.have.property('message');\n});",
+      "parentId": "fld_clubs"
+    },
+    {
+      "_id": "req_clubs_favorite_no_auth",
+      "_type": "request",
+      "name": "[401] POST /api/clubs/:id/favorite – sans token",
+      "method": "POST",
+      "url": "{{ base_url }}/api/clubs/{{ club_id }}/favorite",
+      "afterResponseScript": "insomnia.test('Status 401 – non authentifie', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_clubs"
+    },
+    {
+      "_id": "req_clubs_favorite_ok",
+      "_type": "request",
+      "name": "[200] POST /api/clubs/:id/favorite – toggle",
+      "method": "POST",
+      "url": "{{ base_url }}/api/clubs/{{ club_id }}/favorite",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient favorited boolean', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.favorited).to.be.a('boolean');\n});",
+      "parentId": "fld_clubs"
+    },
+    {
+      "_id": "req_clubs_favorite_status",
+      "_type": "request",
+      "name": "[200] GET /api/clubs/:id/favorite/status",
+      "method": "GET",
+      "url": "{{ base_url }}/api/clubs/{{ club_id }}/favorite/status",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient favorited boolean', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.favorited).to.be.a('boolean');\n});",
+      "parentId": "fld_clubs"
+    },
+
+    { "_id": "fld_tournaments", "_type": "request_group", "name": "🏆 Tournois (public)", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_tournaments_list",
+      "_type": "request",
+      "name": "[200] GET /api/tournaments – liste",
+      "method": "GET",
+      "url": "{{ base_url }}/api/tournaments",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient data array et total', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.be.an('array');\n  insomnia.expect(body.total).to.be.a('number');\n});",
+      "parentId": "fld_tournaments"
+    },
+    {
+      "_id": "req_tournaments_show",
+      "_type": "request",
+      "name": "[200] GET /api/tournaments/:id – detail",
+      "method": "GET",
+      "url": "{{ base_url }}/api/tournaments/{{ tournament_id }}",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient id et name', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.have.property('id');\n  insomnia.expect(body.data).to.have.property('name');\n});",
+      "parentId": "fld_tournaments"
+    },
+    {
+      "_id": "req_tournaments_show_404",
+      "_type": "request",
+      "name": "[404] GET /api/tournaments/99999 – introuvable",
+      "method": "GET",
+      "url": "{{ base_url }}/api/tournaments/99999",
+      "afterResponseScript": "insomnia.test('Status 404', () => {\n  insomnia.expect(insomnia.response.status).to.equal(404);\n});\ninsomnia.test('Message erreur present', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('error');\n});",
+      "parentId": "fld_tournaments"
+    },
+
+    { "_id": "fld_matches", "_type": "request_group", "name": "🎯 Matchs (public)", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_matches_list",
+      "_type": "request",
+      "name": "[200] GET /api/matches – liste",
+      "method": "GET",
+      "url": "{{ base_url }}/api/matches",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient data array', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.be.an('array');\n});",
+      "parentId": "fld_matches"
+    },
+    {
+      "_id": "req_matches_show",
+      "_type": "request",
+      "name": "[200] GET /api/matches/:id – detail",
+      "method": "GET",
+      "url": "{{ base_url }}/api/matches/{{ match_id }}",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient homeTeam, awayTeam, status', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.have.property('homeTeam');\n  insomnia.expect(body.data).to.have.property('awayTeam');\n  insomnia.expect(body.data).to.have.property('status');\n});",
+      "parentId": "fld_matches"
+    },
+    {
+      "_id": "req_matches_by_status",
+      "_type": "request",
+      "name": "[200] GET /api/matches/status/scheduled",
+      "method": "GET",
+      "url": "{{ base_url }}/api/matches/status/scheduled",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Tous les matchs ont status scheduled', () => {\n  const body = insomnia.response.json();\n  if (body.data && body.data.length > 0) {\n    body.data.forEach(m => insomnia.expect(m.status).to.equal('scheduled'));\n  }\n});",
+      "parentId": "fld_matches"
+    },
+
+    { "_id": "fld_users", "_type": "request_group", "name": "👥 Utilisateurs – securite", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_users_me_favorites",
+      "_type": "request",
+      "name": "[200] GET /api/users/me/favorites – connecte",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/me/favorites",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient data array et count', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.be.an('array');\n  insomnia.expect(body.count).to.be.a('number');\n});",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_users_me_favorites_no_auth",
+      "_type": "request",
+      "name": "[401] GET /api/users/me/favorites – sans token",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/me/favorites",
+      "afterResponseScript": "insomnia.test('Status 401 – non authentifie', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_users_id_no_auth",
+      "_type": "request",
+      "name": "[401] GET /api/users/:id – sans token",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/{{ user_id }}",
+      "afterResponseScript": "insomnia.test('Status 401 – token manquant', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_users_id_user_auth",
+      "_type": "request",
+      "name": "[403] GET /api/users/:id – token USER (non admin)",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/{{ user_id }}",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 403 – acces refuse pour ROLE_USER', () => {\n  insomnia.expect(insomnia.response.status).to.equal(403);\n});",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_users_id_admin_auth",
+      "_type": "request",
+      "name": "[200] GET /api/users/:id – token ADMIN",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/{{ user_id }}",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status 200 – admin autorise', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient id et email', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.have.property('id');\n  insomnia.expect(body.data).to.have.property('email');\n});\ninsomnia.test('Ne contient pas le mot de passe', () => {\n  insomnia.expect(insomnia.response.body).to.not.contain('password');\n});",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_users_id_favorites_user",
+      "_type": "request",
+      "name": "[403] GET /api/users/:id/favorites – token USER",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/{{ user_id }}/favorites",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 403 – ROLE_USER ne peut pas voir les favoris d un autre user', () => {\n  insomnia.expect(insomnia.response.status).to.equal(403);\n});",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_users_id_favorites_admin",
+      "_type": "request",
+      "name": "[200] GET /api/users/:id/favorites – token ADMIN",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/{{ user_id }}/favorites",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status 200 – admin autorise', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient data array', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.be.an('array');\n});",
+      "parentId": "fld_users"
+    },
+
+    { "_id": "fld_admin", "_type": "request_group", "name": "🛡️ Admin API – fonctionnel", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_admin_stats_no_auth",
+      "_type": "request",
+      "name": "[401] GET /api/admin/stats – sans token",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/stats",
+      "afterResponseScript": "insomnia.test('Status 401 – token manquant', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_stats_user",
+      "_type": "request",
+      "name": "[403] GET /api/admin/stats – token USER",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/stats",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 403 – ROLE_USER refuse sur route admin', () => {\n  insomnia.expect(insomnia.response.status).to.equal(403);\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_stats_ok",
+      "_type": "request",
+      "name": "[200] GET /api/admin/stats – admin",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/stats",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient les 4 compteurs', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.data).to.have.property('clubs');\n  insomnia.expect(body.data).to.have.property('tournois');\n  insomnia.expect(body.data).to.have.property('matchs');\n  insomnia.expect(body.data).to.have.property('utilisateurs');\n  insomnia.expect(body.data.clubs).to.be.a('number');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_clubs_list",
+      "_type": "request",
+      "name": "[200] GET /api/admin/clubs",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/clubs",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient data array', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.data).to.be.an('array');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_clubs_create",
+      "_type": "request",
+      "name": "[201] POST /api/admin/clubs – creer un club",
+      "method": "POST",
+      "url": "{{ base_url }}/api/admin/clubs",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ jwt_admin }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Club Test Insomnia\",\n  \"city\": \"Paris\",\n  \"country\": \"France\",\n  \"stadium\": \"Stade Test\",\n  \"colors\": \"Rouge/Bleu\",\n  \"foundedYear\": 2000,\n  \"description\": \"Club cree via Insomnia\"\n}" },
+      "afterResponseScript": "insomnia.test('Status 201', () => {\n  insomnia.expect(insomnia.response.status).to.equal(201);\n});\ninsomnia.test('Contient l id du nouveau club', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.id).to.be.a('number');\n});\nconst body = insomnia.response.json();\nif (body.id) { insomnia.environment.set('club_id', body.id); }",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_clubs_update",
+      "_type": "request",
+      "name": "[200] PUT /api/admin/clubs/:id – modifier",
+      "method": "PUT",
+      "url": "{{ base_url }}/api/admin/clubs/{{ club_id }}",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ jwt_admin }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Club Modifie\",\n  \"city\": \"Lyon\",\n  \"country\": \"France\"\n}" },
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Message success', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_clubs_delete_404",
+      "_type": "request",
+      "name": "[404] DELETE /api/admin/clubs/99999 – inexistant",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/admin/clubs/99999",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status 404 – club inexistant', () => {\n  insomnia.expect(insomnia.response.status).to.equal(404);\n});\ninsomnia.test('Message erreur present', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('error');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_tournois_list",
+      "_type": "request",
+      "name": "[200] GET /api/admin/tournois",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/tournois",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient data array', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.data).to.be.an('array');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_tournois_create",
+      "_type": "request",
+      "name": "[201] POST /api/admin/tournois – creer",
+      "method": "POST",
+      "url": "{{ base_url }}/api/admin/tournois",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ jwt_admin }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Tournoi Test\",\n  \"season\": \"2025-2026\",\n  \"location\": \"Paris\",\n  \"status\": \"upcoming\",\n  \"startDate\": \"2026-04-01\",\n  \"endDate\": \"2026-06-30\",\n  \"description\": \"Cree via Insomnia\"\n}" },
+      "afterResponseScript": "insomnia.test('Status 201', () => {\n  insomnia.expect(insomnia.response.status).to.equal(201);\n});\ninsomnia.test('Contient l id du nouveau tournoi', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.id).to.be.a('number');\n});\nconst body = insomnia.response.json();\nif (body.id) { insomnia.environment.set('tournament_id', body.id); }",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_matchs_list",
+      "_type": "request",
+      "name": "[200] GET /api/admin/matchs",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/matchs",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient data array', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.data).to.be.an('array');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_matchs_create",
+      "_type": "request",
+      "name": "[201] POST /api/admin/matchs – creer",
+      "method": "POST",
+      "url": "{{ base_url }}/api/admin/matchs",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ jwt_admin }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": { "mimeType": "application/json", "text": "{\n  \"homeTeam\": 1,\n  \"awayTeam\": 2,\n  \"matchDate\": \"2026-05-15T15:00\",\n  \"venue\": \"Stade de France\",\n  \"status\": \"scheduled\",\n  \"tournament\": 1\n}" },
+      "afterResponseScript": "insomnia.test('Status 201', () => {\n  insomnia.expect(insomnia.response.status).to.equal(201);\n});\ninsomnia.test('Contient l id du nouveau match', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.id).to.be.a('number');\n});\nconst body = insomnia.response.json();\nif (body.id) { insomnia.environment.set('match_id', body.id); }",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_matchs_update",
+      "_type": "request",
+      "name": "[200] PUT /api/admin/matchs/:id – modifier score",
+      "method": "PUT",
+      "url": "{{ base_url }}/api/admin/matchs/{{ match_id }}",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ jwt_admin }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": { "mimeType": "application/json", "text": "{\n  \"homeScore\": 2,\n  \"awayScore\": 1,\n  \"status\": \"finished\"\n}" },
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Message success', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_users_list",
+      "_type": "request",
+      "name": "[200] GET /api/admin/utilisateurs",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/utilisateurs",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Contient data array', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.data).to.be.an('array');\n});\ninsomnia.test('Ne contient pas les mots de passe', () => {\n  insomnia.expect(insomnia.response.body).to.not.contain('\"password\"');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_users_update",
+      "_type": "request",
+      "name": "[200] PUT /api/admin/utilisateurs/:id – modifier role",
+      "method": "PUT",
+      "url": "{{ base_url }}/api/admin/utilisateurs/{{ user_id }}",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ jwt_admin }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": { "mimeType": "application/json", "text": "{\n  \"roles\": [\"ROLE_USER\"],\n  \"isActive\": true\n}" },
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.status).to.equal(200);\n});\ninsomnia.test('Message success', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_users_no_auth",
+      "_type": "request",
+      "name": "[401] GET /api/admin/utilisateurs – sans token",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/utilisateurs",
+      "afterResponseScript": "insomnia.test('Status 401 – token manquant', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_admin"
+    },
+    {
+      "_id": "req_admin_users_user_token",
+      "_type": "request",
+      "name": "[403] GET /api/admin/utilisateurs – token USER",
+      "method": "GET",
+      "url": "{{ base_url }}/api/admin/utilisateurs",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 403 – ROLE_USER refuse', () => {\n  insomnia.expect(insomnia.response.status).to.equal(403);\n});",
+      "parentId": "fld_admin"
+    },
+
+    { "_id": "fld_security", "_type": "request_group", "name": "🚨 Tests de securite avances", "parentId": "wrk_footlocal" },
+
+    {
+      "_id": "req_sec_xss_register",
+      "_type": "request",
+      "name": "[400/201] XSS – script dans firstName",
+      "method": "POST",
+      "url": "{{ base_url }}/api/register",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"xss_test2@test.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"<script>alert('xss')</script>\",\n  \"lastName\": \"Test\"\n}" },
+      "afterResponseScript": "insomnia.test('Status non-500 – pas de crash serveur', () => {\n  insomnia.expect(insomnia.response.status).to.not.equal(500);\n});\ninsomnia.test('La reponse ne contient pas de balise script executee', () => {\n  insomnia.expect(insomnia.response.body).to.not.contain('<script>alert');\n});",
+      "parentId": "fld_security"
+    },
+    {
+      "_id": "req_sec_mass_assign",
+      "_type": "request",
+      "name": "[201] Mass assignment – elevation de role ADMIN ignoree",
+      "method": "POST",
+      "url": "{{ base_url }}/api/register",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"hacker_test@test.com\",\n  \"password\": \"password123\",\n  \"roles\": [\"ROLE_ADMIN\"]\n}" },
+      "afterResponseScript": "insomnia.test('Status 201 – compte cree', () => {\n  insomnia.expect(insomnia.response.status).to.equal(201);\n});\ninsomnia.test('Le champ roles n est pas expose dans la reponse', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('success');\n  insomnia.expect(body.user).to.not.have.property('roles');\n});",
+      "parentId": "fld_security"
+    },
+    {
+      "_id": "req_sec_idor_user",
+      "_type": "request",
+      "name": "[403] IDOR – user lit les donnees d un autre user",
+      "method": "GET",
+      "url": "{{ base_url }}/api/users/1",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 403 – IDOR bloque', () => {\n  insomnia.expect(insomnia.response.status).to.equal(403);\n});\ninsomnia.test('Pas de donnees personnelles exposees', () => {\n  insomnia.expect(insomnia.response.body).to.not.contain('\"email\"');\n  insomnia.expect(insomnia.response.body).to.not.contain('\"password\"');\n});",
+      "parentId": "fld_security"
+    },
+    {
+      "_id": "req_sec_club_delete_no_auth",
+      "_type": "request",
+      "name": "[401] Suppression club – sans auth",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/admin/clubs/1",
+      "afterResponseScript": "insomnia.test('Status 401 – suppression impossible sans token', () => {\n  insomnia.expect(insomnia.response.status).to.equal(401);\n});",
+      "parentId": "fld_security"
+    },
+    {
+      "_id": "req_sec_club_delete_user",
+      "_type": "request",
+      "name": "[403] Suppression club – token USER",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/admin/clubs/1",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_token }}" }],
+      "afterResponseScript": "insomnia.test('Status 403 – ROLE_USER ne peut pas supprimer un club', () => {\n  insomnia.expect(insomnia.response.status).to.equal(403);\n});",
+      "parentId": "fld_security"
+    },
+    {
+      "_id": "req_sec_admin_delete_himself",
+      "_type": "request",
+      "name": "[info] DELETE admin – suppression de son propre compte",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/admin/utilisateurs/{{ user_id }}",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ jwt_admin }}" }],
+      "afterResponseScript": "insomnia.test('Status non-500 – pas de crash serveur', () => {\n  insomnia.expect(insomnia.response.status).to.not.equal(500);\n});\ninsomnia.test('Reponse JSON valide', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body).to.have.property('status');\n});",
+      "parentId": "fld_security"
+    },
+    {
+      "_id": "req_sec_large_payload",
+      "_type": "request",
+      "name": "[400] Payload oversized – controle de longueur",
+      "method": "POST",
+      "url": "{{ base_url }}/api/register",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"big@test.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"\n}" },
+      "afterResponseScript": "insomnia.test('Status 400 – firstName trop long refuse', () => {\n  insomnia.expect(insomnia.response.status).to.equal(400);\n});\ninsomnia.test('Status non-500 – pas d exception SQL', () => {\n  insomnia.expect(insomnia.response.status).to.not.equal(500);\n});\ninsomnia.test('Message erreur present', () => {\n  const body = insomnia.response.json();\n  insomnia.expect(body.status).to.equal('error');\n  insomnia.expect(body).to.have.property('message');\n});",
+      "parentId": "fld_security"
+    }
+  ]
+}
