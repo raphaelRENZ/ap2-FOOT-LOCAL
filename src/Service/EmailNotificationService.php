@@ -68,13 +68,23 @@ class EmailNotificationService
 
     public function sendAccountDeletionConfirmation(User $user, string $reason = 'user_request'): void
     {
+        $this->sendAccountDeletionConfirmationTo(
+            (string) $user->getEmail(),
+            $user->getFullName(),
+            $reason
+        );
+    }
+
+    public function sendAccountDeletionConfirmationTo(string $emailAddress, string $displayName, string $reason = 'user_request'): void
+    {
         $email = (new TemplatedEmail())
             ->from(self::FROM_EMAIL)
-            ->to($user->getEmail())
+            ->to($emailAddress)
             ->subject('Confirmation de suppression de compte')
             ->htmlTemplate('emails/account_deleted.html.twig')
             ->context([
-                'user' => $user,
+                'userName' => $displayName ?: $emailAddress,
+                'userEmail' => $emailAddress,
                 'reason' => $this->formatDeletionReason($reason),
             ]);
 
@@ -88,10 +98,12 @@ class EmailNotificationService
 
     private function formatDeletionReason(string $reason): string
     {
+        $reason = trim($reason);
+
         return match ($reason) {
             'policy_violation' => 'Suppression par un administrateur pour non-respect des regles.',
             'user_request' => 'Suppression demandee par l\'utilisateur.',
-            default => 'Suppression du compte confirmee.',
+            default => $reason !== '' ? $reason : 'Suppression du compte confirmee.',
         };
     }
 }

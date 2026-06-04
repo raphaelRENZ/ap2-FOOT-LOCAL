@@ -2,11 +2,13 @@
 
 namespace App\Controller\Api;
 
+use App\Service\EmailNotificationService;
 use App\Repository\ClubRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -39,6 +41,57 @@ final class ApiUserController extends AbstractController
                     'name' => $c->getName(),
                 ])->toArray(),
             ],
+        ]);
+    }
+
+    #[Route('/me', name: 'me_delete', methods: ['DELETE'])]
+    public function deleteMe(
+        Request $request,
+        EntityManagerInterface $em,
+        EmailNotificationService $emailNotificationService
+    ): JsonResponse {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $data = is_array($data) ? $data : [];
+        $reason = trim((string) ($data['reason'] ?? ''));
+
+        if ($reason === '') {
+            return $this->json(['status' => 'error', 'message' => 'La raison de suppression est requise.'], 400);
+        }
+
+        if (mb_strlen($reason) > 500) {
+            return $this->json(['status' => 'error', 'message' => 'La raison ne peut pas depasser 500 caracteres.'], 400);
+        }
+
+        $emailAddress = (string) $user->getEmail();
+        $displayName = $user->getFullName();
+        $emailSent = true;
+
+        try {
+            $emailNotificationService->sendAccountDeletionConfirmationTo($emailAddress, $displayName, $reason);
+        } catch (\Throwable) {
+            $emailSent = false;
+        }
+
+        foreach ($user->getFavoriteClubs()->toArray() as $club) {
+            $user->removeFavoriteClub($club);
+        }
+
+        $em->remove($user);
+        $em->flush();
+
+        return $this->json([
+            'status' => 'success',
+            'message' => $emailSent
+                ? 'Compte supprime. Un email de confirmation a ete envoye.'
+                : 'Compte supprime, mais l\'email de confirmation n\'a pas pu etre envoye.',
+            'emailSent' => $emailSent,
         ]);
     }
 

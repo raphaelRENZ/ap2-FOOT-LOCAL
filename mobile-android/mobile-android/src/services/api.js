@@ -147,6 +147,13 @@ export async function getMe() {
   return apiFetch('/api/users/me');
 }
 
+export async function deleteMyAccount(reason) {
+  return apiFetch('/api/users/me', {
+    method: 'DELETE',
+    body: JSON.stringify({ reason }),
+  });
+}
+
 export async function getMatches() {
   return apiFetch('/api/matches');
 }
