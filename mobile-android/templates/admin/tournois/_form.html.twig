@@ -1,0 +1,51 @@
+{# Shared form fields for Tournament. Variable `tournoi` may be undefined (new) or set (edit). #}
+{% set t = tournoi is defined ? tournoi : null %}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+    <div style="grid-column:1/-1;">
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Nom du tournoi *</label>
+        <input type="text" name="name" value="{{ t ? t.name : '' }}" required
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Saison</label>
+        <input type="text" name="season" value="{{ t ? t.season : '' }}" placeholder="ex: 2024-2025"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Lieu</label>
+        <input type="text" name="location" value="{{ t ? t.location : '' }}"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Date de début</label>
+        <input type="date" name="startDate" value="{{ t and t.startDate ? t.startDate|date('Y-m-d') : '' }}"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Date de fin</label>
+        <input type="date" name="endDate" value="{{ t and t.endDate ? t.endDate|date('Y-m-d') : '' }}"
+               style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+    </div>
+
+    <div>
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Statut</label>
+        <select name="status" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            {% set currentStatus = t ? t.status : 'upcoming' %}
+            <option value="upcoming"  {{ currentStatus == 'upcoming'  ? 'selected' : '' }}>À venir</option>
+            <option value="ongoing"   {{ currentStatus == 'ongoing'   ? 'selected' : '' }}>En cours</option>
+            <option value="completed" {{ currentStatus == 'completed' ? 'selected' : '' }}>Terminé</option>
+            <option value="cancelled" {{ currentStatus == 'cancelled' ? 'selected' : '' }}>Annulé</option>
+        </select>
+    </div>
+
+    <div style="grid-column:1/-1;">
+        <label style="display:block;font-weight:600;margin-bottom:4px;">Description</label>
+        <textarea name="description" rows="4"
+                  style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;resize:vertical;">{{ t ? t.description : '' }}</textarea>
+    </div>
+</div>

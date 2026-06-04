@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact - Foot Local{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>Nous contacter</h1>
+        <p>Vous avez des questions, des suggestions ou souhaitez simplement nous dire bonjour ? N'hésitez pas à nous contacter en utilisant le formulaire ci-dessous ou via nos coordonnées.</p>
+    </div>
+
+    <div class="content-card">
+        <h2>Formulaire de contact</h2>
+        <form method="post">
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="nom" name="nom" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Envoyer</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block sidebar %}
+    <div class="sidebar-item">
+        <h3>Nos coordonnées</h3>
+        <p><strong>{{ coordonnees.adresse }}</strong></p>
+        <p>Téléphone : {{ coordonnees.telephone }}</p>
+        <p>Email : <a href="mailto:{{ coordonnees.email }}">{{ coordonnees.email }}</a></p>
+    </div>
+
+    <div class="sidebar-item" style="border-left: 4px solid #a78bfa; background: #f5f3ff; padding: 1rem; border-radius: 8px;">
+        <h3 style="color: #5b21b6;">📋 Coachs & Clubs</h3>
+        <p style="font-size: .92rem; margin-bottom: .6rem;">
+            Vous êtes <strong>coach</strong> ou responsable d'un club ?
+        </p>
+        <p style="font-size: .92rem; margin-bottom: .6rem;">
+            Utilisez ce formulaire pour soumettre une <strong>demande d'organisation de tournoi ou de match</strong>.
+            Précisez dans votre message :
+        </p>
+        <ul style="font-size: .88rem; padding-left: 1.2rem; margin-bottom: .6rem;">
+            <li>Le nom de votre club</li>
+            <li>Le type de demande (tournoi / match amical)</li>
+            <li>La date souhaitée</li>
+            <li>Tout autre détail utile</li>
+        </ul>
+        <p style="font-size: .85rem; color: #6b7280;">
+            Votre demande sera transmise directement à la <strong>Maison des Ligues</strong> qui vous recontactera dans les meilleurs délais.
+        </p>
+    </div>
+{% endblock %}

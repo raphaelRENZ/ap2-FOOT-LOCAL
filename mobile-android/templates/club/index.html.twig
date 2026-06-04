@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Clubs - Foot Local{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>Liste des clubs</h1>
+        <p>Découvrez tous les clubs de football répertoriés sur Foot Local. Cliquez sur un club pour voir plus de détails, suivre ses actualités et découvrir ses joueurs.</p>
+    </div>
+
+    {% if clubs is not empty %}
+        <div class="content-card">
+            <table class="table mt-4">
+                <thead>
+                    <tr>
+                        <th>Nom du club</th>
+                        <th>Ville</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for club in clubs %}
+                        <tr>
+                            <td>{{ club.name }}</td>
+                            <td>{{ club.city }}</td>
+                            <td>
+                                <a href="{{ path('app_clubs_detail', {id: club.id}) }}" class="btn btn-sm btn-primary">Voir détails</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="content-card">
+            <p>Aucun club enregistré pour le moment.</p>
+        </div>
+    {% endif %}
+{% endblock %}

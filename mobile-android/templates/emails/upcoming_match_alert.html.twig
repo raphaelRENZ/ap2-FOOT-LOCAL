@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Alerte prochain match</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #1f2937;">
+    <h2>Alerte match pour {{ favoriteClub.name }}</h2>
+
+    <p>Bonjour {{ user.fullName }},</p>
+
+    <p>
+        Le club que vous suivez va jouer prochainement.
+    </p>
+
+    <ul>
+        <li><strong>Match :</strong> {{ match.homeTeam.name }} vs {{ match.awayTeam.name }}</li>
+        <li><strong>Date :</strong> {{ match.matchDate|date('d/m/Y H:i') }}</li>
+        <li><strong>Lieu :</strong> {{ match.venue ?: 'A confirmer' }}</li>
+    </ul>
+
+    <p>Bonne chance a votre equipe !</p>
+
+    <p>Equipe Foot Local</p>
+</body>
+</html>
