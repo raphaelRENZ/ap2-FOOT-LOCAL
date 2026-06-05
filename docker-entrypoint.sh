@@ -8,13 +8,25 @@ echo ">>> [2/5] Permissions du dossier var/..."
 chmod -R 777 var/
 
 echo ">>> [3/5] Nettoyage du cache Symfony..."
-php bin/console cache:clear --no-warmup
+if [ "${APP_SKIP_CACHE_CLEAR:-1}" = "1" ]; then
+	echo "Cache clear ignore (APP_SKIP_CACHE_CLEAR=1)."
+else
+	php bin/console cache:clear --no-warmup || true
+fi
 
 echo ">>> [4/5] Exécution des migrations de base de données..."
-php bin/console doctrine:migrations:migrate --no-interaction || true
+if [ "${APP_RUN_MIGRATIONS:-0}" = "1" ]; then
+	php bin/console doctrine:migrations:migrate --no-interaction || true
+else
+	echo "Migrations ignorees (APP_RUN_MIGRATIONS=0)."
+fi
 
 echo ">>> [5/5] Chargement des fixtures de test..."
-php bin/console doctrine:fixtures:load --no-interaction --append || true
+if [ "${APP_LOAD_FIXTURES:-0}" = "1" ]; then
+	php bin/console doctrine:fixtures:load --no-interaction --append || true
+else
+	echo "Fixtures ignorees (APP_LOAD_FIXTURES=0)."
+fi
 
-echo ">>> Démarrage du serveur Symfony sur 0.0.0.0:8000..."
-exec symfony server:start --no-tls --port=8000 --allow-http --listen-ip=0.0.0.0
+echo ">>> Démarrage du serveur PHP sur 0.0.0.0:8000..."
+exec php -S 0.0.0.0:8000 -t public

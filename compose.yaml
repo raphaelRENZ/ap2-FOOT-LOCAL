@@ -24,6 +24,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      COMPOSER_DISCARD_CHANGES: "true"
+      APP_CACHE_DIR: "/tmp/symfony/cache"
+      APP_LOG_DIR: "/tmp/symfony/log"
     volumes:
       - .:/var/www/html
     working_dir: /var/www/html

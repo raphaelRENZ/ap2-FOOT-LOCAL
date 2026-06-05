@@ -3,7 +3,10 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
+use App\Service\EmailNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +20,10 @@ final class ApiRegisterController extends AbstractController
     public function register(
         Request $request,
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $hasher
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $hasher,
+        EmailNotificationService $emailNotificationService,
+        LoggerInterface $logger
     ): JsonResponse {
         $data = json_decode($request->getContent(), true) ?? [];
 
@@ -34,6 +40,10 @@ final class ApiRegisterController extends AbstractController
 
         if (strlen($password) < 6) {
             return $this->json(['status' => 'error', 'message' => 'Le mot de passe doit contenir au moins 6 caractères.'], 400);
+        }
+
+        if ($userRepository->findOneBy(['email' => $email])) {
+            return $this->json(['status' => 'error', 'message' => 'Un compte existe déjà avec cet email.'], 409);
         }
 
         $user = new User();
@@ -56,6 +66,15 @@ final class ApiRegisterController extends AbstractController
 
         $em->persist($user);
         $em->flush();
+
+        try {
+            $emailNotificationService->sendWelcomeEmail($user);
+        } catch (\Throwable $e) {
+            $logger->warning('Impossible d\'envoyer l\'email de bienvenue.', [
+                'email' => $user->getEmail(),
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return $this->json([
             'status'  => 'success',
