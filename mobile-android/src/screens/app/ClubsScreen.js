@@ -1,25 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { addFavorite, getClubs } from '../../services/api';
+import { addFavorite, getClubs, getFavorites, removeFavorite } from '../../services/api';
 import { notifyFavoriteAdded } from '../../services/notifications';
 
 export default function ClubsScreen() {
   const [clubs, setClubs] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [error, setError] = useState('');
 
   useEffect(() => {
     getClubs()
       .then((res) => setClubs(res.data || []))
       .catch((e) => setError(e.message || 'Erreur chargement clubs'));
+
+    getFavorites()
+      .then((res) => {
+        const ids = (res.data || []).map((c) => c.id);
+        setFavoriteIds(new Set(ids));
+      })
+      .catch(() => {
+        // Pas bloquant si les favoris ne chargent pas
+      });
   }, []);
 
-  async function handleFavorite(club) {
+  async function handleToggleFavorite(club) {
+    const isFav = favoriteIds.has(club.id);
     try {
-      await addFavorite(club.id);
-      await notifyFavoriteAdded(club.name);
-      Alert.alert('OK', `${club.name} ajoute aux favoris`);
+      if (isFav) {
+        await removeFavorite(club.id);
+        setFavoriteIds((prev) => {
+          const next = new Set(prev);
+          next.delete(club.id);
+          return next;
+        });
+        Alert.alert('OK', `${club.name} retiré des favoris`);
+      } else {
+        await addFavorite(club.id);
+        await notifyFavoriteAdded(club.name);
+        setFavoriteIds((prev) => new Set([...prev, club.id]));
+        Alert.alert('OK', `${club.name} ajouté aux favoris`);
+      }
     } catch (e) {
-      Alert.alert('Erreur', e.message || 'Impossible d\'ajouter en favori');
+      Alert.alert('Erreur', e.message || 'Action impossible');
     }
   }
 
@@ -30,15 +52,23 @@ export default function ClubsScreen() {
       <FlatList
         data={clubs}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.meta}>{item.city || '-'} • {item.country || '-'}</Text>
-            <Pressable onPress={() => handleFavorite(item)} style={styles.button}>
-              <Text style={styles.buttonText}>Ajouter aux favoris</Text>
-            </Pressable>
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const isFav = favoriteIds.has(item.id);
+          return (
+            <View style={styles.card}>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.meta}>{item.city || '-'} • {item.country || '-'}</Text>
+              <Pressable
+                onPress={() => handleToggleFavorite(item)}
+                style={[styles.button, isFav && styles.buttonActive]}
+              >
+                <Text style={styles.buttonText}>
+                  {isFav ? '★ Retirer des favoris' : '☆ Ajouter aux favoris'}
+                </Text>
+              </Pressable>
+            </View>
+          );
+        }}
       />
     </View>
   );
@@ -51,6 +81,7 @@ const styles = StyleSheet.create({
   name: { fontSize: 17, fontWeight: '700', color: '#143524' },
   meta: { marginTop: 3, color: '#4b6655' },
   button: { marginTop: 8, backgroundColor: '#1f6e3a', borderRadius: 10, padding: 10, alignItems: 'center' },
+  buttonActive: { backgroundColor: '#b91c1c' },
   buttonText: { color: '#fff', fontWeight: '700' },
   error: { color: '#b91c1c', marginBottom: 8 },
 });
