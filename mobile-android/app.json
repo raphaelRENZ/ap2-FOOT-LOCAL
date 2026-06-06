@@ -9,8 +9,8 @@
       "**/*"
     ],
     "extra": {
-      "apiBaseUrlAndroid": "http://10.0.2.2:8000", // Pour l'émulateur
-      "apiBaseUrlIos": "http://172.20.10.2:8000"   // Pour le téléphone physique sur le réseau local
+      "apiBaseUrlAndroid": "http://10.0.2.2:8000", 
+      "apiBaseUrlIos": "http://172.20.10.2:8000"   
     },
     "ios": {
       "bundleIdentifier": "com.footlocal.mobile",
