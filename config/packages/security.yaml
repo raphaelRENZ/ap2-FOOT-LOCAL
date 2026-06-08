@@ -62,6 +62,7 @@ security:
         - { path: ^/api/clubs, roles: PUBLIC_ACCESS }
         - { path: ^/api/tournaments, roles: PUBLIC_ACCESS }
         - { path: ^/api/matches, roles: PUBLIC_ACCESS }
+        - { path: ^/api/news, roles: PUBLIC_ACCESS }
         - { path: ^/api/players, roles: PUBLIC_ACCESS }
         # Endpoints admin (doit être avant le catch-all ^/api)
         - { path: ^/api/admin, roles: ROLE_ADMIN }

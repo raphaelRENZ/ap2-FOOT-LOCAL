@@ -100,8 +100,25 @@ export async function getClubs() {
   return apiFetch('/api/clubs');
 }
 
+export async function getClubDetail(id) {
+  return apiFetch(`/api/clubs/${id}`);
+}
+
 export async function getTournaments() {
   return apiFetch('/api/tournaments');
+}
+
+export async function getTournamentDetail(id) {
+  return apiFetch(`/api/tournaments/${id}`);
+}
+
+export async function getNews(limit) {
+  const q = limit ? `?limit=${limit}` : '';
+  return apiFetch(`/api/news${q}`);
+}
+
+export async function getNewsDetail(id) {
+  return apiFetch(`/api/news/${id}`);
 }
 
 export async function getFavorites() {

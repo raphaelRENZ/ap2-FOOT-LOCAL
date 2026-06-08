@@ -4,9 +4,11 @@ namespace App\Controller\Api;
 
 use App\Entity\Club;
 use App\Entity\FootballMatch;
+use App\Entity\News;
 use App\Entity\Tournament;
 use App\Repository\ClubRepository;
 use App\Repository\MatchRepository;
+use App\Repository\NewsRepository;
 use App\Repository\TournamentRepository;
 use App\Repository\UserRepository;
 use App\Service\EmailNotificationService;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 #[Route('/api/admin', name: 'api_admin_')]
 #[IsGranted('ROLE_ADMIN')]
@@ -31,7 +34,8 @@ final class ApiAdminController extends AbstractController
         ClubRepository $clubs,
         TournamentRepository $tournaments,
         MatchRepository $matches,
-        UserRepository $users
+        UserRepository $users,
+        NewsRepository $news
     ): JsonResponse {
         return $this->json([
             'status' => 'success',
@@ -40,12 +44,53 @@ final class ApiAdminController extends AbstractController
                 'tournois'     => $tournaments->count([]),
                 'matchs'       => $matches->count([]),
                 'utilisateurs' => $users->count([]),
+                'actualites'   => $news->count([]),
             ],
         ]);
     }
 
     // ──────────────────────────────────────────
     //  CLUBS CRUD
+        // ──────────────────────────────────────────
+        //  UPLOAD LOGO
+        // ──────────────────────────────────────────
+
+        #[Route('/upload/club-logo', name: 'upload_club_logo', methods: ['POST'])]
+        public function uploadClubLogo(Request $request): JsonResponse
+        {
+            $file = $request->files->get('logo');
+
+            if (!$file) {
+                return $this->json(['status' => 'error', 'message' => 'Aucun fichier reçu.'], 400);
+            }
+
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+            if (!in_array($file->getMimeType(), $allowedMimes, true)) {
+                return $this->json(['status' => 'error', 'message' => 'Format non autorisé. Utilisez JPG, PNG, GIF, WEBP ou SVG.'], 400);
+            }
+
+            if ($file->getSize() > 2 * 1024 * 1024) {
+                return $this->json(['status' => 'error', 'message' => 'Fichier trop volumineux (max 2 Mo).'], 400);
+            }
+
+            $slugger   = new AsciiSlugger();
+            $original  = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safe      = $slugger->slug($original);
+            $filename  = $safe . '-' . uniqid() . '.' . $file->guessExtension();
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/images/clubs';
+
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0775, true);
+            }
+
+            $file->move($uploadDir, $filename);
+
+            return $this->json([
+                'status' => 'success',
+                'url'    => '/images/clubs/' . $filename,
+            ]);
+        }
+
     // ──────────────────────────────────────────
 
     #[Route('/clubs', name: 'clubs_list', methods: ['GET'])]
@@ -63,6 +108,7 @@ final class ApiAdminController extends AbstractController
                 'stadium'     => $c->getStadium(),
                 'colors'      => $c->getColors(),
                 'foundedYear' => $c->getFoundedYear(),
+                'logo'        => $c->getLogo(),
                 'description' => $c->getDescription(),
             ], $clubs),
         ]);
@@ -119,6 +165,7 @@ final class ApiAdminController extends AbstractController
         $club->setDescription($data['description'] ?: null);
         $club->setStadium($data['stadium'] ?: null);
         $club->setColors($data['colors'] ?: null);
+        $club->setLogo($data['logo'] ?: null);
         $year = $data['foundedYear'] ?? null;
         $club->setFoundedYear(($year !== '' && $year !== null) ? (int) $year : null);
     }
@@ -307,6 +354,87 @@ final class ApiAdminController extends AbstractController
 
         $tid = $data['tournament'] ?? null;
         $m->setTournament($tid ? $tournaments->find((int) $tid) : null);
+    }
+
+    // ──────────────────────────────────────────
+    //  ACTUALITES CRUD
+    // ──────────────────────────────────────────
+
+    #[Route('/news', name: 'news_list', methods: ['GET'])]
+    public function newsList(NewsRepository $repo): JsonResponse
+    {
+        $items = $repo->findBy([], ['position' => 'ASC', 'updatedAt' => 'DESC']);
+
+        return $this->json([
+            'status' => 'success',
+            'data' => array_map(fn(News $n) => [
+                'id' => $n->getId(),
+                'title' => $n->getTitle(),
+                'subtitle' => $n->getSubtitle(),
+                'description' => $n->getDescription(),
+                'imageUrl' => $n->getImageUrl(),
+                'position' => $n->getPosition(),
+                'isPublished' => $n->isPublished(),
+                'createdAt' => $n->getCreatedAt()?->format(DATE_ATOM),
+                'updatedAt' => $n->getUpdatedAt()?->format(DATE_ATOM),
+            ], $items),
+        ]);
+    }
+
+    #[Route('/news', name: 'news_create', methods: ['POST'])]
+    public function newsCreate(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $item = new News();
+        $this->hydrateNews($item, $data);
+        $em->persist($item);
+        $em->flush();
+
+        return $this->json(['status' => 'success', 'message' => 'Actualite creee.', 'id' => $item->getId()], 201);
+    }
+
+    #[Route('/news/{id}', name: 'news_update', methods: ['PUT'])]
+    public function newsUpdate(int $id, Request $request, NewsRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $item = $repo->find($id);
+
+        if (!$item) {
+            return $this->json(['status' => 'error', 'message' => 'Actualite introuvable.'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true) ?? [];
+        $this->hydrateNews($item, $data);
+        $em->flush();
+
+        return $this->json(['status' => 'success', 'message' => 'Actualite modifiee.']);
+    }
+
+    #[Route('/news/{id}', name: 'news_delete', methods: ['DELETE'])]
+    public function newsDelete(int $id, NewsRepository $repo, EntityManagerInterface $em): JsonResponse
+    {
+        $item = $repo->find($id);
+
+        if (!$item) {
+            return $this->json(['status' => 'error', 'message' => 'Actualite introuvable.'], 404);
+        }
+
+        $em->remove($item);
+        $em->flush();
+
+        return $this->json(['status' => 'success', 'message' => 'Actualite supprimee.']);
+    }
+
+    private function hydrateNews(News $news, array $data): void
+    {
+        $title = trim((string) ($data['title'] ?? ''));
+        $desc = trim((string) ($data['description'] ?? ''));
+
+        $news->setTitle($title !== '' ? $title : 'Sans titre');
+        $news->setSubtitle(($data['subtitle'] ?? '') !== '' ? trim((string) $data['subtitle']) : null);
+        $news->setDescription($desc !== '' ? $desc : 'Description en attente.');
+        $news->setImageUrl(($data['imageUrl'] ?? '') !== '' ? trim((string) $data['imageUrl']) : null);
+        $news->setPosition(max(1, (int) ($data['position'] ?? 1)));
+        $news->setIsPublished((bool) ($data['isPublished'] ?? true));
     }
 
     // ──────────────────────────────────────────

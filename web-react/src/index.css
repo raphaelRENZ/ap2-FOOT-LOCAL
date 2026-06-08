@@ -275,6 +275,36 @@ body {
     line-height: 1.5;
 }
 
+.sidebar-news-image {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 0.6rem;
+}
+
+.sidebar-subtitle {
+    font-weight: 600;
+    color: #3d5a46;
+    margin-bottom: 0.8rem;
+}
+
+.news-card-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 340px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
 /* ===================================
    FOOTER
    =================================== */
