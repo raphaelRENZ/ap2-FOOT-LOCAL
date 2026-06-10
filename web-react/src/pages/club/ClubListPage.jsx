@@ -3,6 +3,28 @@ import { Link } from 'react-router-dom'
 import Layout from '../../components/Layout'
 import { getClubs } from '../../services/api'
 
+function ClubAvatar({ club }) {
+  const initials = club.name
+    ? club.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+    : '?'
+  if (club.logo) {
+    return (
+      <img
+        src={club.logo}
+        alt={club.name}
+        style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', marginRight: 10, border: '2px solid #dbe7db', flexShrink: 0 }}
+      />
+    )
+  }
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      width: 36, height: 36, borderRadius: '50%', background: '#1f6e3a',
+      color: '#fff', fontWeight: '700', fontSize: 13, marginRight: 10, flexShrink: 0,
+    }}>{initials}</span>
+  )
+}
+
 export default function ClubListPage() {
   const [clubs, setClubs]   = useState([])
   const [loading, setLoading] = useState(true)
@@ -38,11 +60,14 @@ export default function ClubListPage() {
               <tbody>
                 {clubs.map((club) => (
                   <tr key={club.id}>
-                    <td>{club.name}</td>
+                    <td style={{ display: 'flex', alignItems: 'center' }}>
+                      <ClubAvatar club={club} />
+                      {club.name}
+                    </td>
                     <td>{club.city ?? '—'}</td>
                     <td>
                       <Link to={`/clubs/${club.id}`} className="btn btn-sm btn-primary">
-                        Voir détails
+                        Voir les infos
                       </Link>
                     </td>
                   </tr>

@@ -23,7 +23,18 @@ export default function ClubDetailPage() {
 
       {club && (
         <>
-          <div className="hero-section">
+          <div className="hero-section" style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {club.logo ? (
+              <img src={club.logo} alt={club.name} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid #1f6e3a' }} />
+            ) : (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: 64, height: 64, borderRadius: '50%', background: '#1f6e3a',
+                color: '#fff', fontWeight: '700', fontSize: 22,
+              }}>
+                {club.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()}
+              </span>
+            )}
             <h1>{club.name}</h1>
           </div>
 

@@ -10,6 +10,36 @@ function Badge({ status }) {
   return <Text style={[styles.badge, { backgroundColor: color }]}>{label}</Text>;
 }
 
+function MatchCard({ item }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <View style={styles.card}>
+      <View style={styles.rowTop}>
+        <Text style={styles.date}>{item.matchDate || '-'}</Text>
+        <Badge status={item.status} />
+      </View>
+      <Text style={styles.teams}>
+        {item.homeTeam?.name || item.homeTeam} vs {item.awayTeam?.name || item.awayTeam}
+      </Text>
+      {item.status !== 'scheduled' && (
+        <Text style={styles.score}>{item.homeScore ?? '-'} - {item.awayScore ?? '-'}</Text>
+      )}
+      <Pressable onPress={() => setExpanded((v) => !v)} style={styles.btnInfo}>
+        <Text style={styles.btnInfoText}>{expanded ? 'Masquer' : 'Voir les infos'}</Text>
+      </Pressable>
+      {expanded && (
+        <View style={styles.details}>
+          {item.location ? <Text style={styles.detailRow}><Text style={styles.detailLabel}>Lieu : </Text>{item.location}</Text> : null}
+          {item.tournament?.name ? <Text style={styles.detailRow}><Text style={styles.detailLabel}>Tournoi : </Text>{item.tournament.name}</Text> : null}
+          {item.homeTeam?.name ? <Text style={styles.detailRow}><Text style={styles.detailLabel}>Équipe domicile : </Text>{item.homeTeam.name}{item.homeTeam.city ? ` (${item.homeTeam.city})` : ''}</Text> : null}
+          {item.awayTeam?.name ? <Text style={styles.detailRow}><Text style={styles.detailLabel}>Équipe extérieur : </Text>{item.awayTeam.name}{item.awayTeam.city ? ` (${item.awayTeam.city})` : ''}</Text> : null}
+          {item.status === 'finished' && <Text style={styles.detailRow}><Text style={styles.detailLabel}>Score final : </Text>{item.homeScore ?? '-'} - {item.awayScore ?? '-'}</Text>}
+        </View>
+      )}
+    </View>
+  );
+}
+
 export default function MatchesScreen() {
   const [matches, setMatches] = useState([]);
   const [filter, setFilter] = useState('scheduled');
@@ -43,18 +73,7 @@ export default function MatchesScreen() {
       <FlatList
         data={filtered}
         keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View style={styles.rowTop}>
-              <Text style={styles.date}>{item.matchDate || '-'}</Text>
-              <Badge status={item.status} />
-            </View>
-            <Text style={styles.teams}>{item.homeTeam?.name || item.homeTeam} vs {item.awayTeam?.name || item.awayTeam}</Text>
-            {item.status !== 'scheduled' && (
-              <Text style={styles.score}>{item.homeScore ?? '-'} - {item.awayScore ?? '-'}</Text>
-            )}
-          </View>
-        )}
+        renderItem={({ item }) => <MatchCard item={item} />}
         ListEmptyComponent={<Text style={styles.empty}>Aucun match pour ce filtre.</Text>}
       />
     </View>
@@ -75,6 +94,11 @@ const styles = StyleSheet.create({
   teams: { fontSize: 16, fontWeight: '700', color: '#143524' },
   score: { marginTop: 5, fontSize: 18, fontWeight: '700', color: '#0f5132' },
   badge: { color: '#fff', fontSize: 11, paddingVertical: 3, paddingHorizontal: 8, borderRadius: 12, overflow: 'hidden' },
+  btnInfo: { marginTop: 8, backgroundColor: '#e8f5ee', borderWidth: 1, borderColor: '#1f6e3a', borderRadius: 10, padding: 8, alignItems: 'center' },
+  btnInfoText: { color: '#1f6e3a', fontWeight: '700', fontSize: 13 },
+  details: { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderColor: '#e8f0e8' },
+  detailRow: { fontSize: 13, color: '#334d3e', marginBottom: 4 },
+  detailLabel: { fontWeight: '700' },
   empty: { color: '#667f70', marginTop: 18 },
   error: { color: '#b91c1c', marginBottom: 8 },
 });
