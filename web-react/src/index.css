@@ -187,6 +187,17 @@ body {
     padding: 0 2rem;
 }
 
+.container.no-sidebar {
+    justify-content: center;
+    max-width: 900px;
+}
+
+.container.no-sidebar .main-content {
+    max-width: 560px;
+    width: 100%;
+    margin: 0 auto;
+}
+
 /* ===================================
    MAIN CONTENT
    =================================== */
