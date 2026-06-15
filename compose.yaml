@@ -17,7 +17,7 @@ services:
     volumes:
       - database_data:/var/lib/mysql:rw
     ports:
-      - "3308:3306"
+      - "3306:3306"
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/mysql:rw
 ###< doctrine/doctrine-bundle ###
