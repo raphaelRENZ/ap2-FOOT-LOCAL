@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { getFavorites, getMatchesByStatus, removeFavorite } from '../../services/api';
 import { notifyUpcomingFavoriteMatches } from '../../services/notifications';
 
@@ -7,9 +8,11 @@ export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState([]);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    reload();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [])
+  );
 
   function reload() {
     getFavorites()

@@ -60,6 +60,13 @@ export default function AdminDashboardPage() {
               <small style={{ opacity: '.8' }}>Gérer les utilisateurs</small>
             </div>
           </Link>
+          <Link to="/admin/actualites" style={{ textDecoration: 'none' }}>
+            <div className="content-card" style={{ background: 'linear-gradient(135deg,#2f4858,#33658a)', color: 'white', cursor: 'pointer' }}>
+              <h2 style={{ color: 'white' }}>📰 Actualites</h2>
+              <p style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>{stats.actualites ?? 0}</p>
+              <small style={{ opacity: '.8' }}>Gerer les mini-actus</small>
+            </div>
+          </Link>
         </div>
       )}
 
@@ -69,6 +76,7 @@ export default function AdminDashboardPage() {
           <Link to="/admin/clubs/new" className="btn btn-primary">+ Nouveau club</Link>
           <Link to="/admin/tournois/new" className="btn btn-primary">+ Nouveau tournoi</Link>
           <Link to="/admin/matchs/new" className="btn btn-primary">+ Nouveau match</Link>
+          <Link to="/admin/actualites/new" className="btn btn-primary">+ Nouvelle actualite</Link>
         </div>
       </div>
     </Layout>

@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import MatchesScreen from '../screens/app/MatchesScreen';
+import NewsScreen from '../screens/app/NewsScreen';
 import ClubsScreen from '../screens/app/ClubsScreen';
 import TournamentsScreen from '../screens/app/TournamentsScreen';
 import FavoritesScreen from '../screens/app/FavoritesScreen';
@@ -21,6 +22,7 @@ function AppTabs() {
 
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Actus" component={NewsScreen} />
       <Tab.Screen name="Matchs" component={MatchesScreen} />
       <Tab.Screen name="Clubs" component={ClubsScreen} />
       <Tab.Screen name="Tournois" component={TournamentsScreen} />

@@ -1,15 +1,17 @@
 import Header from './Header'
 import Sidebar from './Sidebar'
 
-export default function Layout({ children, sidebar, hideSidebar = false }) {
+export default function Layout({ children, sidebar }) {
+  const hasSidebar = sidebar !== false
+
   return (
     <>
       <Header />
-      <div className="container">
+      <div className={`container ${hasSidebar ? '' : 'no-sidebar'}`.trim()}>
         <main className="main-content">
           {children}
         </main>
-        {!hideSidebar && <Sidebar>{sidebar}</Sidebar>}
+        {hasSidebar ? <Sidebar>{sidebar}</Sidebar> : null}
       </div>
       <footer className="main-footer">
         <p>&copy; La Maison des Ligues</p>

@@ -9,7 +9,17 @@
       "**/*"
     ],
     "extra": {
-      "apiBaseUrl": "http://10.0.2.2:8000"
+      "apiBaseUrlAndroid": "http://10.0.2.2:8000"
+    },
+    "ios": {
+      "bundleIdentifier": "com.footlocal.mobile",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        },
+        "NSLocalNetworkUsageDescription": "Foot Local needs local network access to reach your development API server."
+      }
     },
     "android": {
       "package": "com.footlocal.mobile"

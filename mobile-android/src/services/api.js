@@ -1,7 +1,26 @@
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
-const extraApiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
-const API_BASE_URL = extraApiBaseUrl || 'http://10.0.2.2:8000';
+function getExpoHost() {
+  const hostUri =
+    Constants.expoConfig?.hostUri ||
+    Constants.expoGoConfig?.debuggerHost ||
+    Constants.manifest2?.extra?.expoGo?.debuggerHost;
+
+  if (!hostUri) return null;
+  return String(hostUri).split(':')[0];
+}
+
+const envApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+const extra = Constants.expoConfig?.extra || {};
+const platformApiBaseUrl = Platform.OS === 'ios' ? extra.apiBaseUrlIos : extra.apiBaseUrlAndroid;
+const genericApiBaseUrl = extra.apiBaseUrl;
+const expoHost = getExpoHost();
+const lanApiBaseUrl = expoHost ? `http://${expoHost}:8000` : null;
+const fallbackApiBaseUrl = Platform.OS === 'ios' ? 'http://127.0.0.1:8000' : 'http://10.0.2.2:8000';
+
+const API_BASE_URL =
+  envApiBaseUrl || platformApiBaseUrl || genericApiBaseUrl || lanApiBaseUrl || fallbackApiBaseUrl;
 
 let authToken = null;
 
@@ -81,8 +100,25 @@ export async function getClubs() {
   return apiFetch('/api/clubs');
 }
 
+export async function getClubDetail(id) {
+  return apiFetch(`/api/clubs/${id}`);
+}
+
 export async function getTournaments() {
   return apiFetch('/api/tournaments');
+}
+
+export async function getTournamentDetail(id) {
+  return apiFetch(`/api/tournaments/${id}`);
+}
+
+export async function getNews(limit) {
+  const q = limit ? `?limit=${limit}` : '';
+  return apiFetch(`/api/news${q}`);
+}
+
+export async function getNewsDetail(id) {
+  return apiFetch(`/api/news/${id}`);
 }
 
 export async function getFavorites() {

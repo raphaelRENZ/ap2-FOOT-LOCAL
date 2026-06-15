@@ -4,6 +4,8 @@ import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute'
 
 // Pages publiques
 import HomePage               from './pages/main/HomePage'
+import NewsListPage           from './pages/main/NewsListPage'
+import NewsDetailPage         from './pages/main/NewsDetailPage'
 import LoginPage              from './pages/security/LoginPage'
 import RegisterPage           from './pages/registration/RegisterPage'
 import ClubListPage           from './pages/club/ClubListPage'
@@ -26,6 +28,8 @@ import AdminMatchsPage      from './pages/admin/matchs/AdminMatchsPage'
 import AdminMatchFormPage   from './pages/admin/matchs/AdminMatchFormPage'
 import AdminUsersPage       from './pages/admin/utilisateurs/AdminUsersPage'
 import AdminUserEditPage    from './pages/admin/utilisateurs/AdminUserEditPage'
+import AdminNewsPage        from './pages/admin/news/AdminNewsPage'
+import AdminNewsFormPage    from './pages/admin/news/AdminNewsFormPage'
 
 function App() {
   return (
@@ -34,6 +38,8 @@ function App() {
         <Routes>
           {/* Publiques */}
           <Route path="/"            element={<HomePage />} />
+          <Route path="/actus"       element={<NewsListPage />} />
+          <Route path="/actus/:id"   element={<NewsDetailPage />} />
           <Route path="/connexion"   element={<LoginPage />} />
           <Route path="/inscription" element={<RegisterPage />} />
           <Route path="/clubs"       element={<ClubListPage />} />
@@ -59,6 +65,9 @@ function App() {
           <Route path="/admin/matchs/:id/edit" element={<AdminRoute><AdminMatchFormPage /></AdminRoute>} />
           <Route path="/admin/utilisateurs" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
           <Route path="/admin/utilisateurs/:id/edit" element={<AdminRoute><AdminUserEditPage /></AdminRoute>} />
+          <Route path="/admin/actualites" element={<AdminRoute><AdminNewsPage /></AdminRoute>} />
+          <Route path="/admin/actualites/new" element={<AdminRoute><AdminNewsFormPage /></AdminRoute>} />
+          <Route path="/admin/actualites/:id/edit" element={<AdminRoute><AdminNewsFormPage /></AdminRoute>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -89,6 +89,17 @@ export async function getTournamentDetail(id) {
   return apiFetch(`/api/tournaments/${id}`)
 }
 
+// ── Actualites publiques ─────────────────────────────────────────────
+
+export async function getNews(limit) {
+  const q = limit ? `?limit=${limit}` : ''
+  return apiFetch(`/api/news${q}`)
+}
+
+export async function getNewsDetail(id) {
+  return apiFetch(`/api/news/${id}`)
+}
+
 // ── Favoris ───────────────────────────────────────────────────────────
 
 export async function getFavorites() {
@@ -161,6 +172,24 @@ export async function adminUpdateMatch(id, data) {
 
 export async function adminDeleteMatch(id) {
   return apiFetch(`/api/admin/matchs/${id}`, { method: 'DELETE' })
+}
+
+// ── Admin – Actualites ───────────────────────────────────────────────
+
+export async function adminGetNews() {
+  return apiFetch('/api/admin/news')
+}
+
+export async function adminCreateNews(data) {
+  return apiFetch('/api/admin/news', { method: 'POST', body: JSON.stringify(data) })
+}
+
+export async function adminUpdateNews(id, data) {
+  return apiFetch(`/api/admin/news/${id}`, { method: 'PUT', body: JSON.stringify(data) })
+}
+
+export async function adminDeleteNews(id) {
+  return apiFetch(`/api/admin/news/${id}`, { method: 'DELETE' })
 }
 
 // ── Admin – Utilisateurs ──────────────────────────────────────────────
