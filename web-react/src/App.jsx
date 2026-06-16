@@ -16,6 +16,7 @@ import ContactPage            from './pages/contact/ContactPage'
 
 // Pages protégées (utilisateur connecté)
 import AccountPage  from './pages/account/AccountPage'
+import AccountEditPage  from './pages/account/AccountEditPage'
 import FavorisPage  from './pages/account/FavorisPage'
 
 // Pages admin
@@ -50,6 +51,7 @@ function App() {
 
           {/* Protégées (utilisateur connecté) */}
           <Route path="/compte" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
+          <Route path="/compte/modifier" element={<ProtectedRoute><AccountEditPage /></ProtectedRoute>} />
           <Route path="/compte/favoris" element={<ProtectedRoute><FavorisPage /></ProtectedRoute>} />
 
           {/* Admin */}

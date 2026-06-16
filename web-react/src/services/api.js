@@ -59,6 +59,14 @@ export async function getMe(token) {
   return parseJson(response)
 }
 
+export async function updateMe(data) {
+  return apiFetch('/api/me', { method: 'PUT', body: JSON.stringify(data) })
+}
+
+export async function deleteMe(data) {
+  return apiFetch('/api/me', { method: 'DELETE', body: JSON.stringify(data) })
+}
+
 // ── Clubs publics ─────────────────────────────────────────────────────
 
 export async function getClubs() {

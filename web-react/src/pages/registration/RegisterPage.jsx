@@ -31,7 +31,12 @@ export default function RegisterPage() {
   return (
     <Layout sidebar={false}>
       <div className="auth-container">
+        <div className="auth-header">
+          <img src="/logo_foot_local-removebg-preview.png" alt="Foot Local Logo" className="auth-logo" />
+        </div>
+
         <h1 className="auth-title">Inscription</h1>
+        <p className="auth-subtitle">Rejoignez notre communauté</p>
 
         {error && <div className="auth-alert">{error}</div>}
 

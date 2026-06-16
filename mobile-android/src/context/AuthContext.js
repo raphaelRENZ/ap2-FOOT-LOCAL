@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showWelcomeToast, setShowWelcomeToast] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -39,6 +40,7 @@ export function AuthProvider({ children }) {
     token,
     profile,
     loading,
+    showWelcomeToast,
     isAdmin: Array.isArray(profile?.roles) && profile.roles.includes('ROLE_ADMIN'),
     login: async (newToken) => {
       setAuthToken(newToken);
@@ -46,14 +48,17 @@ export function AuthProvider({ children }) {
       await AsyncStorage.setItem(TOKEN_KEY, newToken);
       const me = await getMe();
       setProfile(me.data || me);
+      setShowWelcomeToast(true);
     },
+    dismissWelcomeToast: () => setShowWelcomeToast(false),
     logout: async () => {
       await AsyncStorage.removeItem(TOKEN_KEY);
       setAuthToken(null);
       setToken(null);
       setProfile(null);
+      setShowWelcomeToast(false);
     },
-  }), [token, profile, loading]);
+  }), [token, profile, loading, showWelcomeToast]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

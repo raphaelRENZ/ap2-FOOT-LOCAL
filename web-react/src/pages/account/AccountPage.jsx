@@ -1,9 +1,20 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import Layout from '../../components/Layout'
+import DeleteAccountModal from '../../components/DeleteAccountModal'
 import { useAuth } from '../../context/AuthContext'
 
 export default function AccountPage() {
-  const { profile, isAdmin } = useAuth()
+  const { profile, isAdmin, logout } = useAuth()
+  const navigate = useNavigate()
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+  const handleDeleteSuccess = () => {
+    setIsDeleteModalOpen(false)
+    logout()
+    navigate('/connexion', { replace: true })
+  }
 
   return (
     <Layout>
@@ -23,7 +34,7 @@ export default function AccountPage() {
               <p><strong>Téléphone :</strong> {profile.phone}</p>
             )}
             <div style={{ marginTop: '1rem' }}>
-              <button className="btn btn-primary">Modifier mes informations</button>
+              <Link to="/compte/modifier" className="btn btn-primary">Modifier mes informations</Link>
             </div>
           </>
         ) : (
@@ -46,6 +57,26 @@ export default function AccountPage() {
           </div>
         )}
       </div>
+
+      <div style={{ marginTop: '2rem', padding: '2rem', backgroundColor: '#fef2f2', borderRadius: '12px', borderLeft: '4px solid #ef4444' }}>
+        <h3 style={{ color: '#991b1b', marginBottom: '1rem' }}>Zone de danger</h3>
+        <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+          Vous pouvez supprimer votre compte de manière permanente. Cette action est irréversible.
+        </p>
+        <button
+          onClick={() => setIsDeleteModalOpen(true)}
+          className="btn btn-danger"
+          style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+        >
+          Supprimer mon compte
+        </button>
+      </div>
+
+      <DeleteAccountModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onSuccess={handleDeleteSuccess}
+      />
     </Layout>
   )
 }
