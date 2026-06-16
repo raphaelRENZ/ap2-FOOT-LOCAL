@@ -39,7 +39,12 @@ export default function LoginPage() {
   return (
     <Layout sidebar={false}>
       <div className="auth-container">
+        <div className="auth-header">
+          <img src="/logo_foot_local-removebg-preview.png" alt="Foot Local Logo" className="auth-logo" />
+        </div>
+
         <h1 className="auth-title">Connexion</h1>
+        <p className="auth-subtitle">Bienvenue sur Foot Local</p>
 
         {error && <div className="auth-alert">{error}</div>}
 

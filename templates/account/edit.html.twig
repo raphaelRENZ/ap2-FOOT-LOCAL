@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mes informations - Foot Local{% endblock %}
+
+{% block body %}
+    <div class="hero-section">
+        <h1>Modifier mes informations</h1>
+        <p>Mettez a jour vos informations personnelles depuis votre espace compte.</p>
+    </div>
+
+    <div class="content-card">
+        {{ form_start(profileForm, { attr: { class: 'auth-form' } }) }}
+            {{ form_row(profileForm.firstName, {
+                row_attr: { class: 'auth-field' },
+                attr: { class: 'auth-input' }
+            }) }}
+
+            {{ form_row(profileForm.lastName, {
+                row_attr: { class: 'auth-field' },
+                attr: { class: 'auth-input' }
+            }) }}
+
+            {{ form_row(profileForm.phone, {
+                row_attr: { class: 'auth-field' },
+                attr: { class: 'auth-input' }
+            }) }}
+
+            {{ form_row(profileForm.birthDate, {
+                row_attr: { class: 'auth-field' },
+                attr: { class: 'auth-input' }
+            }) }}
+
+            <div class="auth-actions">
+                <button type="submit" class="auth-btn">Enregistrer</button>
+                <a href="{{ path('app_compte') }}" class="btn btn-secondary">Annuler</a>
+            </div>
+        {{ form_end(profileForm) }}
+    </div>
+{% endblock %}
