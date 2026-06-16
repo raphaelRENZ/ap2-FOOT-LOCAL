@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getMe, setAuthToken } from '../services/api';
-
-const TOKEN_KEY = 'footlocal.token';
+import { getMe, setAuthToken, setUnauthorizedHandler } from '../services/api';
+import { getStoredToken, removeStoredToken, setStoredToken } from '../services/tokenStorage';
 
 const AuthContext = createContext(null);
 
@@ -12,9 +10,22 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [showWelcomeToast, setShowWelcomeToast] = useState(false);
 
+  const forceLogout = React.useCallback(async () => {
+    await removeStoredToken();
+    setAuthToken(null);
+    setToken(null);
+    setProfile(null);
+    setShowWelcomeToast(false);
+  }, []);
+
+  useEffect(() => {
+    setUnauthorizedHandler(forceLogout);
+    return () => setUnauthorizedHandler(null);
+  }, [forceLogout]);
+
   useEffect(() => {
     (async () => {
-      const savedToken = await AsyncStorage.getItem(TOKEN_KEY);
+      const savedToken = await getStoredToken();
       if (!savedToken) {
         setLoading(false);
         return;
@@ -27,14 +38,12 @@ export function AuthProvider({ children }) {
         const me = await getMe();
         setProfile(me.data || me);
       } catch {
-        await AsyncStorage.removeItem(TOKEN_KEY);
-        setAuthToken(null);
-        setToken(null);
+        await forceLogout();
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [forceLogout]);
 
   const value = useMemo(() => ({
     token,
@@ -45,20 +54,20 @@ export function AuthProvider({ children }) {
     login: async (newToken) => {
       setAuthToken(newToken);
       setToken(newToken);
-      await AsyncStorage.setItem(TOKEN_KEY, newToken);
-      const me = await getMe();
-      setProfile(me.data || me);
-      setShowWelcomeToast(true);
+      await setStoredToken(newToken);
+
+      try {
+        const me = await getMe();
+        setProfile(me.data || me);
+        setShowWelcomeToast(true);
+      } catch (error) {
+        await forceLogout();
+        throw error;
+      }
     },
     dismissWelcomeToast: () => setShowWelcomeToast(false),
-    logout: async () => {
-      await AsyncStorage.removeItem(TOKEN_KEY);
-      setAuthToken(null);
-      setToken(null);
-      setProfile(null);
-      setShowWelcomeToast(false);
-    },
-  }), [token, profile, loading, showWelcomeToast]);
+    logout: forceLogout,
+  }), [token, profile, loading, showWelcomeToast, forceLogout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

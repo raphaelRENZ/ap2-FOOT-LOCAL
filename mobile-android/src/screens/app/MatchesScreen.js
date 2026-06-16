@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { getMatchesByStatus } from '../../services/api';
 
 const FILTERS = ['scheduled', 'live', 'finished'];
@@ -13,14 +13,36 @@ function Badge({ status }) {
 export default function MatchesScreen() {
   const [matches, setMatches] = useState([]);
   const [filter, setFilter] = useState('scheduled');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  const loadData = useCallback(async ({ refresh = false } = {}) => {
+    if (refresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+
     setError('');
-    getMatchesByStatus(filter)
-      .then((res) => setMatches(res.data || []))
-      .catch((e) => setError(e.message || 'Erreur chargement matchs'));
+    try {
+      const res = await getMatchesByStatus(filter);
+      setMatches(res.data || []);
+    } catch (e) {
+      setError(e.message || 'Erreur chargement matchs');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
   }, [filter]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  function handleRefresh() {
+    loadData({ refresh: true });
+  }
 
   const filtered = useMemo(() => matches, [matches]);
 
@@ -39,9 +61,16 @@ export default function MatchesScreen() {
       </View>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
+      {isLoading ? (
+        <View style={styles.loaderWrap}>
+          <ActivityIndicator size="large" color="#1f6e3a" />
+        </View>
+      ) : null}
 
       <FlatList
         data={filtered}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <View style={styles.card}>
@@ -64,6 +93,7 @@ export default function MatchesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#f7faf7' },
   title: { fontSize: 24, fontWeight: '700', color: '#134b2a', marginBottom: 12 },
+  loaderWrap: { paddingVertical: 12 },
   filters: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   filterBtn: { paddingVertical: 8, paddingHorizontal: 12, backgroundColor: '#e5efe5', borderRadius: 20 },
   filterActive: { backgroundColor: '#1f6e3a' },

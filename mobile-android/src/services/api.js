@@ -23,9 +23,39 @@ const API_BASE_URL =
   envApiBaseUrl || platformApiBaseUrl || genericApiBaseUrl || lanApiBaseUrl || fallbackApiBaseUrl;
 
 let authToken = null;
+let unauthorizedHandler = null;
+let unauthorizedPromise = null;
+
+class ApiError extends Error {
+  constructor(message, status, body) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.body = body;
+  }
+}
 
 export function setAuthToken(token) {
   authToken = token;
+}
+
+export function setUnauthorizedHandler(handler) {
+  unauthorizedHandler = handler;
+}
+
+function triggerUnauthorizedHandler() {
+  if (!unauthorizedHandler || unauthorizedPromise) return;
+
+  // Coupe immediatement le token en memoire pour eviter des 401 en cascade.
+  authToken = null;
+
+  unauthorizedPromise = Promise.resolve(unauthorizedHandler())
+    .catch(() => {
+      // La deconnexion ne doit pas faire echouer la requete initiale.
+    })
+    .finally(() => {
+      unauthorizedPromise = null;
+    });
 }
 
 async function parseJson(response) {
@@ -40,7 +70,7 @@ async function parseJson(response) {
   }
 
   if (!response.ok) {
-    throw new Error(body.message || body.error || `Erreur ${response.status}`);
+    throw new ApiError(body.message || body.error || `Erreur ${response.status}`, response.status, body);
   }
 
   return body;
@@ -58,7 +88,14 @@ async function apiFetch(path, options = {}) {
     headers,
   });
 
-  return parseJson(response);
+  try {
+    return await parseJson(response);
+  } catch (error) {
+    if (error?.status === 401 && authToken) {
+      triggerUnauthorizedHandler();
+    }
+    throw error;
+  }
 }
 
 export async function login(email, password) {

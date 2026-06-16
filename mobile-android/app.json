@@ -23,6 +23,9 @@
     },
     "android": {
       "package": "com.footlocal.mobile"
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }
