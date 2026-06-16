@@ -16,9 +16,9 @@ final class Version20260608100000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $platform = $this->connection->getDatabasePlatform()->getName();
+        $platform = $this->connection->getDatabasePlatform();
 
-        if ($platform === 'sqlite') {
+        if ($platform instanceof \Doctrine\DBAL\Platforms\SqlitePlatform) {
             $this->addSql('CREATE TABLE news (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title VARCHAR(255) NOT NULL, subtitle VARCHAR(255) DEFAULT NULL, description CLOB NOT NULL, image_url VARCHAR(255) DEFAULT NULL, position INTEGER NOT NULL, is_published BOOLEAN NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL)');
             $this->addSql('CREATE INDEX idx_news_published_position ON news (is_published, position)');
             return;
