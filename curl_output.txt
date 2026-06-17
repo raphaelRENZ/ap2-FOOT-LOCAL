@@ -1,0 +1,5 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   286    0   239  100    47  15106   2970 --:--:-- --:--:-- --:--:-- 19066<br />
+<b>Fatal error</b>:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.4.0". You are running 8.2.31. in <b>/var/www/html/vendor/composer/platform_check.php</b> on line <b>22</b><br />
+
