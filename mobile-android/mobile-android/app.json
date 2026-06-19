@@ -13,6 +13,6 @@
     }
   },
   "extra": {
-    "apiBaseUrl": "http://10.74.3.247:8000"
+    "apiBaseUrl": "http://192.168.1.73:8000"
   }
 }
