@@ -4,7 +4,11 @@ set -e
 echo ">>> [1/5] Installation des dépendances Composer..."
 composer install --no-interaction --prefer-dist --no-scripts
 
+echo ">>> [1.5/5] Installation des assets AssetMapper..."
+php bin/console importmap:install --no-interaction || true
+
 echo ">>> [2/5] Permissions du dossier var/..."
+mkdir -p var/cache var/log
 chmod -R 777 var/
 
 echo ">>> [3/5] Nettoyage du cache Symfony..."

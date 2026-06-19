@@ -30,6 +30,13 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [token])
 
+  async function refreshProfile() {
+    if (!token) return null
+    const data = await getMe(token)
+    setProfile(data)
+    return data
+  }
+
   function login(newToken) {
     setApiToken(newToken)  // mise à jour immédiate pour les appels API suivants
     setToken(newToken)
@@ -44,7 +51,7 @@ export function AuthProvider({ children }) {
   const isAdmin = Array.isArray(profile?.roles) && profile.roles.includes('ROLE_ADMIN')
 
   return (
-    <AuthContext.Provider value={{ token, profile, loading, isAdmin, login, logout }}>
+    <AuthContext.Provider value={{ token, profile, loading, isAdmin, login, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   )

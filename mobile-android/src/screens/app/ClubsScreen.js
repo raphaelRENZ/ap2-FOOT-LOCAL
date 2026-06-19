@@ -1,27 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { addFavorite, getClubs, getFavorites, removeFavorite } from '../../services/api';
 import { notifyFavoriteAdded } from '../../services/notifications';
 
 export default function ClubsScreen() {
   const [clubs, setClubs] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    getClubs()
-      .then((res) => setClubs(res.data || []))
-      .catch((e) => setError(e.message || 'Erreur chargement clubs'));
+  const loadData = useCallback(async ({ refresh = false } = {}) => {
+    if (refresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
 
-    getFavorites()
-      .then((res) => {
-        const ids = (res.data || []).map((c) => c.id);
-        setFavoriteIds(new Set(ids));
-      })
-      .catch(() => {
-        // Pas bloquant si les favoris ne chargent pas
-      });
+    setError('');
+
+    try {
+      const [clubsRes, favoritesRes] = await Promise.all([
+        getClubs(),
+        getFavorites().catch(() => ({ data: [] })),
+      ]);
+
+      setClubs(clubsRes.data || []);
+      const ids = (favoritesRes.data || []).map((c) => c.id);
+      setFavoriteIds(new Set(ids));
+    } catch (e) {
+      setError(e.message || 'Erreur chargement clubs');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  function handleRefresh() {
+    loadData({ refresh: true });
+  }
 
   async function handleToggleFavorite(club) {
     const isFav = favoriteIds.has(club.id);
@@ -49,8 +70,15 @@ export default function ClubsScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Clubs</Text>
       {error ? <Text style={styles.error}>{error}</Text> : null}
+      {isLoading ? (
+        <View style={styles.loaderWrap}>
+          <ActivityIndicator size="large" color="#1f6e3a" />
+        </View>
+      ) : null}
       <FlatList
         data={clubs}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => {
           const isFav = favoriteIds.has(item.id);
@@ -77,6 +105,7 @@ export default function ClubsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#f7faf7' },
   title: { fontSize: 24, fontWeight: '700', color: '#134b2a', marginBottom: 12 },
+  loaderWrap: { paddingVertical: 12 },
   card: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#dbe7db', borderRadius: 12, padding: 12, marginBottom: 10 },
   name: { fontSize: 17, fontWeight: '700', color: '#143524' },
   meta: { marginTop: 3, color: '#4b6655' },

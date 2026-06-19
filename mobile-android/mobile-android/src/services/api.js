@@ -16,7 +16,7 @@ function getApiBaseUrl() {
     return `http://${host}:8000`;
   }
 
-  return 'http://10.0.2.2:8000';
+  return 'http://10.74.3.247:8000';
 }
 
 const API_BASE_URL = getApiBaseUrl();

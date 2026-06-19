@@ -1,17 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View, Image } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View, Image } from 'react-native';
 import { getNews } from '../../services/api';
 
 export default function NewsScreen() {
   const [items, setItems] = useState([]);
   const [expanded, setExpanded] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    getNews()
-      .then((res) => setItems(res.data || []))
-      .catch((e) => setError(e.message || 'Erreur chargement actualites'));
+  const loadData = useCallback(async ({ refresh = false } = {}) => {
+    if (refresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+
+    setError('');
+    try {
+      const res = await getNews();
+      setItems(res.data || []);
+    } catch (e) {
+      setError(e.message || 'Erreur chargement actualites');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  function handleRefresh() {
+    loadData({ refresh: true });
+  }
 
   function toggle(id) {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -21,9 +44,16 @@ export default function NewsScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Actualites</Text>
       {error ? <Text style={styles.error}>{error}</Text> : null}
+      {isLoading ? (
+        <View style={styles.loaderWrap}>
+          <ActivityIndicator size="large" color="#1f6e3a" />
+        </View>
+      ) : null}
 
       <FlatList
         data={items}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => {
           const isOpen = !!expanded[item.id];
@@ -52,6 +82,7 @@ export default function NewsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#f7faf7' },
   title: { fontSize: 24, fontWeight: '700', color: '#134b2a', marginBottom: 12 },
+  loaderWrap: { paddingVertical: 12 },
   card: { backgroundColor: '#fff', borderRadius: 12, borderColor: '#dbe7db', borderWidth: 1, padding: 12, marginBottom: 10 },
   image: { width: '100%', height: 140, borderRadius: 8, marginBottom: 8 },
   cardTitle: { fontSize: 17, fontWeight: '700', color: '#143524' },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { login as loginApi } from '../../services/api';
 
@@ -26,42 +26,66 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Foot Local Mobile</Text>
-      <Text style={styles.subtitle}>Connexion obligatoire</Text>
+      <View style={styles.card}>
+        <Image source={require('../../../img/logo_foot_local-removebg-preview.png')} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.title}>Connexion</Text>
+        <Text style={styles.subtitle}>Heureux de vous revoir sur Foot Local</Text>
 
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        style={styles.input}
-      />
-      <TextInput
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Mot de passe"
-        secureTextEntry
-        style={styles.input}
-      />
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          style={styles.input}
+        />
+        <TextInput
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Mot de passe"
+          secureTextEntry
+          style={styles.input}
+        />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable style={styles.button} onPress={handleLogin} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Se connecter</Text>}
-      </Pressable>
+        <Pressable style={styles.button} onPress={handleLogin} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Se connecter</Text>}
+        </Pressable>
 
-      <Pressable onPress={() => navigation.navigate('Register')} style={styles.linkWrap}>
-        <Text style={styles.linkText}>Pas de compte ? S'inscrire</Text>
-      </Pressable>
+        <Pressable onPress={() => navigation.navigate('Register')} style={styles.linkWrap}>
+          <Text style={styles.linkText}>Pas de compte ? S'inscrire</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f4f8f4' },
-  title: { fontSize: 28, fontWeight: '700', color: '#134b2a', marginBottom: 6 },
-  subtitle: { fontSize: 14, color: '#3d5a46', marginBottom: 20 },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#f2f7f2',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  logo: {
+    width: 130,
+    height: 90,
+    alignSelf: 'center',
+    marginBottom: 8,
+  },
+  title: { fontSize: 28, fontWeight: '700', color: '#134b2a', marginBottom: 6, textAlign: 'center' },
+  subtitle: { fontSize: 14, color: '#3d5a46', marginBottom: 20, textAlign: 'center' },
   input: {
     backgroundColor: '#fff',
     borderColor: '#c8d8ca',
@@ -71,7 +95,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   button: {
-    backgroundColor: '#1f6e3a',
+    backgroundColor: '#1b7a43',
     padding: 14,
     borderRadius: 12,
     alignItems: 'center',

@@ -20,7 +20,7 @@
         {% if utilisateur.createdAt %}
             <p><strong>Membre depuis :</strong> {{ utilisateur.createdAt|date('d/m/Y') }}</p>
         {% endif %}
-        <button class="btn btn-primary">Modifier mes informations</button>
+        <a href="{{ path('app_compte_edit') }}" class="btn btn-primary">Modifier mes informations</a>
     </div>
 
     <div class="content-grid">

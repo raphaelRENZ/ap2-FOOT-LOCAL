@@ -11,5 +11,8 @@
     "android": {
       "package": "com.footlocal.mobile"
     }
+  },
+  "extra": {
+    "apiBaseUrl": "http://10.74.3.247:8000"
   }
 }

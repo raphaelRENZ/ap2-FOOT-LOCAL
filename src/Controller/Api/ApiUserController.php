@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Repository\ClubRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -33,6 +34,73 @@ final class ApiUserController extends AbstractController
                 'roles' => $user->getRoles(),
                 'phone' => $user->getPhone(),
                 'avatar' => $user->getAvatar(),
+                'isVerified' => $user->isVerified(),
+                'favoriteClubs' => $user->getFavoriteClubs()->map(fn($c) => [
+                    'id' => $c->getId(),
+                    'name' => $c->getName(),
+                ])->toArray(),
+            ],
+        ]);
+    }
+
+    #[Route('/me', name: 'me_update', methods: ['PUT'])]
+    public function updateMe(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        $payload = json_decode($request->getContent(), true);
+        if (!is_array($payload)) {
+            return $this->json(['status' => 'error', 'message' => 'Invalid JSON payload'], 400);
+        }
+
+        if (array_key_exists('firstName', $payload)) {
+            $user->setFirstName($payload['firstName'] !== '' ? trim((string) $payload['firstName']) : null);
+        }
+
+        if (array_key_exists('lastName', $payload)) {
+            $user->setLastName($payload['lastName'] !== '' ? trim((string) $payload['lastName']) : null);
+        }
+
+        if (array_key_exists('phone', $payload)) {
+            $user->setPhone($payload['phone'] !== '' ? trim((string) $payload['phone']) : null);
+        }
+
+        if (array_key_exists('avatar', $payload)) {
+            $user->setAvatar($payload['avatar'] !== '' ? trim((string) $payload['avatar']) : null);
+        }
+
+        if (array_key_exists('birthDate', $payload)) {
+            $birthDate = $payload['birthDate'];
+            if ($birthDate === '' || $birthDate === null) {
+                $user->setBirthDate(null);
+            } else {
+                try {
+                    $user->setBirthDate(new \DateTimeImmutable((string) $birthDate));
+                } catch (\Exception) {
+                    return $this->json(['status' => 'error', 'message' => 'Invalid birth date'], 400);
+                }
+            }
+        }
+
+        $em->flush();
+
+        return $this->json([
+            'status' => 'success',
+            'message' => 'Profile updated',
+            'data' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'roles' => $user->getRoles(),
+                'phone' => $user->getPhone(),
+                'avatar' => $user->getAvatar(),
+                'birthDate' => $user->getBirthDate()?->format('Y-m-d'),
                 'isVerified' => $user->isVerified(),
                 'favoriteClubs' => $user->getFavoriteClubs()->map(fn($c) => [
                     'id' => $c->getId(),

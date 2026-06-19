@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Suppression de votre compte Foot Local</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #1f2937;">
+    <h2>Suppression de votre compte</h2>
+
+    <p>
+        Bonjour {{ name }},
+    </p>
+
+    <p>
+        Votre compte <strong>Foot Local</strong> a été supprimé avec succès.
+    </p>
+
+    {% if reason %}
+    <p>
+        <strong>Motif de suppression :</strong> 
+        {% if reason == 'no_longer_use' %}
+            Je n'utilise plus l'application
+        {% elseif reason == 'privacy_concerns' %}
+            Problèmes de confidentialité
+        {% elseif reason == 'too_complex' %}
+            L'application est trop complexe
+        {% elseif reason == 'personal' %}
+            Raisons personnelles
+        {% elseif reason == 'other' %}
+            Autre
+        {% endif %}
+    </p>
+    {% endif %}
+
+    {% if comment %}
+    <p>
+        <strong>Commentaire :</strong> {{ comment }}
+    </p>
+    {% endif %}
+
+    <p>
+        Toutes vos données personnelles ont été supprimées de nos serveurs. Si vous avez des questions, vous pouvez nous contacter.
+    </p>
+
+    <p>
+        Nous espérons vous revoir un jour sur Foot Local !<br>
+        <strong>L'équipe Foot Local</strong>
+    </p>
+</body>
+</html>
